@@ -66,7 +66,7 @@ class QQuickAbstractFileDialog : public QQuickAbstractDialog
     Q_PROPERTY(QString selectedNameFilter READ selectedNameFilter WRITE selectNameFilter NOTIFY filterSelected)
     Q_PROPERTY(QStringList selectedNameFilterExtensions READ selectedNameFilterExtensions NOTIFY filterSelected)
     Q_PROPERTY(int selectedNameFilterIndex READ selectedNameFilterIndex WRITE setSelectedNameFilterIndex NOTIFY filterSelected)
-    Q_PROPERTY(QUrl fileUrl READ fileUrl NOTIFY selectionAccepted)
+    Q_PROPERTY(QUrl fileUrl READ fileUrl WRITE setFileUrl NOTIFY fileUrlChanged)
     Q_PROPERTY(QList<QUrl> fileUrls READ fileUrls NOTIFY selectionAccepted)
     Q_PROPERTY(bool sidebarVisible READ sidebarVisible WRITE setSidebarVisible NOTIFY sidebarVisibleChanged)
 
@@ -97,6 +97,7 @@ public Q_SLOTS:
     void setNameFilters(const QStringList &f);
     void selectNameFilter(const QString &f);
     void setSelectedNameFilterIndex(int idx);
+    void setFileUrl(const QUrl &f);
     void setSidebarVisible(bool s);
 
 Q_SIGNALS:
@@ -105,6 +106,7 @@ Q_SIGNALS:
     void filterSelected();
     void fileModeChanged();
     void selectionAccepted();
+    void fileUrlChanged();
     void sidebarVisibleChanged();
 
 protected:
