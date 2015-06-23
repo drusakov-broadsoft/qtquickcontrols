@@ -192,7 +192,34 @@ int QQuickAbstractFileDialog::selectedNameFilterIndex() const
 QUrl QQuickAbstractFileDialog::fileUrl() const
 {
     QList<QUrl> urls = fileUrls();
+    if (urls.count() != 1)
+        urls = m_options->initiallySelectedFiles();
     return (urls.count() == 1) ? urls[0] : QUrl();
+}
+
+void QQuickAbstractFileDialog::setFileUrl(const QUrl &f)
+{
+    QString lf = f.toLocalFile();
+    while (lf.startsWith("//"))
+        lf.remove(0, 1);
+    if (lf.isEmpty())
+        lf = f.fileName();
+    QUrl u = QUrl::fromLocalFile(lf);
+    if (QFileInfo(lf).isRelative()) {
+        QDir dir(m_options->initialDirectory().toLocalFile());
+        u = QUrl::fromLocalFile(dir.absoluteFilePath(lf));
+    }
+    if (m_dlgHelper)
+        m_dlgHelper->selectFile(u);
+    m_options->setInitiallySelectedFiles(QList<QUrl>() << u);
+    emit fileUrlChanged();
+}
+
+QList<QUrl> QQuickAbstractFileDialog::fileUrls() const
+{
+    if (m_dlgHelper)
+        return m_dlgHelper->selectedFiles();
+    return QList<QUrl>();
 }
 
 void QQuickAbstractFileDialog::updateModes()
