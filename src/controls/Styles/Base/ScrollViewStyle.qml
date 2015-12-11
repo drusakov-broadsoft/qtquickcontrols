@@ -269,7 +269,6 @@ Style {
             SequentialAnimation {
                 PauseAnimation { duration: root.__scrollBarFadeDelay }
                 NumberAnimation { properties: "opacity"; duration: root.__scrollBarFadeDuration }
-                PropertyAction { target: panel; property: "visible"; value: false }
             }
         }
 
