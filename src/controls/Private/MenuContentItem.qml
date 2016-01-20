@@ -218,6 +218,7 @@ Loader {
             enabled: visible && opts.enabled
             visible: !!__menuItem && __menuItem.visible
             active: visible
+            height: visible ? implicitHeight : 0
 
             function __showSubMenu(immediately) {
                 if (!__menuItem.enabled)
