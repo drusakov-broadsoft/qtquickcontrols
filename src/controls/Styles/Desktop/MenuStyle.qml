@@ -88,9 +88,6 @@ Style {
         Accessible.role: Accessible.MenuItem
 
         text: styleData.text
-        property string textAndShorcut: text + (styleData.shortcut ? "\t" + styleData.shortcut : "")
-        contentWidth: textWidth(textAndShorcut)
-        contentHeight: textHeight(textAndShorcut)
 
         enabled: styleData.enabled
         selected: styleData.selected
@@ -106,6 +103,10 @@ Style {
             "scrollerDirection": styleData.scrollerDirection,
             "icon": !!__menuItem && __menuItem.__icon
         }
+
+        property string textAndShorcut: text + (styleData.shortcut ? "\t" + styleData.shortcut : "")
+        contentWidth: textWidth(textAndShorcut)
+        contentHeight: textHeight(textAndShorcut)
     }
 
     property Component scrollIndicator: menuItemPanel
