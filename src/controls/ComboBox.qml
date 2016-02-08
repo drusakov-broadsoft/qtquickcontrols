@@ -189,6 +189,16 @@ Control {
     */
     property alias inputMethodHints: input.inputMethodHints
 
+    /*! \qmlproperty string ComboBox::selectedText
+        This property specifies text being selected by the user for an editable combo box.
+    */
+    property alias selectedText: input.selectedText
+
+    /*! \qmlproperty TextInputWithHandles ComboBox::textInput
+        This property gives access to the text input control of an editable combo box.
+    */
+    property alias textInput: input
+
     /*! This property specifies whether the combobox should gain active focus when pressed.
         The default value is \c false. */
     property bool activeFocusOnPress: false
