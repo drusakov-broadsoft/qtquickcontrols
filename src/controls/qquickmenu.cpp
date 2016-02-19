@@ -455,6 +455,11 @@ void QQuickMenu1::__popup(const QRectF &targetRect, int atItemIndex, MenuType me
             m_popupWindow->setParentWindow(parentWindow, quickWindow);
         m_popupWindow->setPopupContentItem(m_menuContentItem);
         m_popupWindow->setItemAt(atItem ? atItem->visualItem() : 0);
+        QScreen * screen = m_popupWindow->parent() ? m_popupWindow->parent()->screen()
+                                                   : m_popupWindow->transientParent() ? m_popupWindow->transientParent()->screen()
+                                                                                      : 0;
+        if (screen && screen != m_popupWindow->screen())
+            m_popupWindow->setScreen(screen);
 
         connect(m_popupWindow, SIGNAL(visibleChanged(bool)), this, SLOT(windowVisibleChanged(bool)));
         connect(m_popupWindow, SIGNAL(geometryChanged()), this, SIGNAL(__popupGeometryChanged()));
