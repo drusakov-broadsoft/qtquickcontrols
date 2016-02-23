@@ -85,6 +85,8 @@ Style {
     property Component menuItemPanel: StyleItem {
         elementType: __menuItemType
 
+        Accessible.role: Accessible.MenuItem
+
         text: styleData.text
         property string textAndShorcut: text + (styleData.shortcut ? "\t" + styleData.shortcut : "")
         contentWidth: textWidth(textAndShorcut)

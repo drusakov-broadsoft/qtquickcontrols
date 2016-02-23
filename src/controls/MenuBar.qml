@@ -139,18 +139,18 @@ MenuBarPrivate {
             property Style style: __style
 
             property int openedMenuIndex: -1
+            property int menuIndex: -1
             property bool preselectMenuItem: false
             property real heightPadding: style ? style.padding.top + style.padding.bottom : 0
 
             property bool altPressed: false
-            property bool altPressedAgain: false
             property var mnemonicsMap: ({})
 
             function dismissActiveFocus(event, reason) {
                 if (reason) {
-                    altPressedAgain = false
                     altPressed = false
                     openedMenuIndex = -1
+                    menuIndex = -1
                     root.__contentItem.parent.forceActiveFocus()
                 } else {
                     event.accepted = false
@@ -160,7 +160,7 @@ MenuBarPrivate {
             function maybeOpenFirstMenu(event) {
                 if (altPressed && openedMenuIndex === -1) {
                     preselectMenuItem = true
-                    openedMenuIndex = 0
+                    openedMenuIndex = menuIndex
                 } else {
                     event.accepted = false
                 }
@@ -173,10 +173,11 @@ MenuBarPrivate {
         Keys.onPressed: {
             var action = null
             if (event.key === Qt.Key_Alt) {
-                if (!d.altPressed)
+                if (!d.altPressed) {
+                    d.menuIndex = 0
                     d.altPressed = true
-                else
-                    d.altPressedAgain = true
+                } else
+                    d.dismissActiveFocus(event, true)
             } else if (d.altPressed && (action = d.mnemonicsMap[event.text.toUpperCase()])) {
                 d.preselectMenuItem = true
                 action.trigger()
@@ -184,7 +185,6 @@ MenuBarPrivate {
             }
         }
 
-        Keys.onReleased: d.dismissActiveFocus(event, d.altPressedAgain && d.openedMenuIndex === -1)
         Keys.onEscapePressed: d.dismissActiveFocus(event, d.openedMenuIndex === -1)
 
         Keys.onUpPressed: d.maybeOpenFirstMenu(event)
@@ -198,6 +198,14 @@ MenuBarPrivate {
                 if (idx >= 0) {
                     d.preselectMenuItem = true
                     d.openedMenuIndex = idx
+                    d.menuIndex = idx
+                }
+            } else if (d.menuIndex > 0) {
+                var idx = d.menuIndex - 1
+                while (idx >= 0 && !(root.menus[idx].enabled && root.menus[idx].visible))
+                    idx--
+                if (idx >= 0) {
+                    d.menuIndex = idx
                 }
             } else {
                 event.accepted = false;
@@ -212,6 +220,14 @@ MenuBarPrivate {
                 if (idx < root.menus.length) {
                     d.preselectMenuItem = true
                     d.openedMenuIndex = idx
+                    d.menuIndex = idx
+                }
+            } else if (d.menuIndex !== -1 && d.menuIndex < root.menus.length - 1) {
+                var idx = d.menuIndex + 1
+                while (idx < root.menus.length && !(root.menus[idx].enabled && root.menus[idx].visible))
+                    idx++
+                if (idx < root.menus.length) {
+                    d.menuIndex = idx
                 }
             } else {
                 event.accepted = false;
@@ -240,7 +256,7 @@ MenuBarPrivate {
                         readonly property int index: __menuItemIndex
                         readonly property string text: !!__menuItem && __menuItem.title
                         readonly property bool enabled: !!__menuItem && __menuItem.enabled
-                        readonly property bool selected: menuMouseArea.hoveredItem === menuItemLoader
+                        readonly property bool selected: menuMouseArea.hoveredItem === menuItemLoader || d.altPressed && d.menuIndex === index
                         readonly property bool open: !!__menuItem && __menuItem.__popupVisible || d.openedMenuIndex === index
                         readonly property bool underlineMnemonic: d.altPressed
                     }
@@ -278,6 +294,7 @@ MenuBarPrivate {
                             if (!__menuItem.__popupVisible && d.openedMenuIndex === index)
                                 d.openedMenuIndex = -1
                         }
+                        onTitleChanged: setupMnemonics(__menuItem)
                     }
 
                     Connections {
@@ -288,10 +305,21 @@ MenuBarPrivate {
                     Component.onCompleted: {
                         __menuItem.__visualItem = menuItemLoader
 
-                        var title = __menuItem.title
+                        setupMnemonics(__menuItem)
+                    }
+
+                    function setupMnemonics(item) {
+                        var title = item.title
                         var ampersandPos = title.indexOf("&")
-                        if (ampersandPos !== -1)
-                            d.mnemonicsMap[title[ampersandPos + 1].toUpperCase()] = __menuItem.__action
+                        if (ampersandPos !== -1) {
+                            for(var mnemonic in d.mnemonicsMap) {
+                                if (d.mnemonicsMap[mnemonic] == item.__action) {
+                                    d.mnemonicsMap[mnemonic] = null
+                                    break
+                                }
+                            }
+                            d.mnemonicsMap[title[ampersandPos + 1].toUpperCase()] = item.__action
+                        }
                     }
                 }
             }
