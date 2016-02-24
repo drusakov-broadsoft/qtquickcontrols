@@ -271,6 +271,18 @@ Loader {
                 property alias menuItem: menuItemLoader.item
                 value: menuItem ? Math.max(__menu.__minimumWidth, content.width) - 2 * menuItem.x : 0
             }
+
+            Connections {
+                target: __menuItem
+                ignoreUnknownSignals: true
+                onTriggered: {
+                    if (__menu.__parentContentItem)
+                        __menu.__parentContentItem.item.__altPressed = false
+                    __menu.__dismissMenu()
+                    __menu.__destroyAllMenuPopups()
+                }
+            }
+
         }
     }
 }
