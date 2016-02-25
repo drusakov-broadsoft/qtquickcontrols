@@ -127,6 +127,9 @@ class QQuickMenuText : public QQuickMenuBase
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(QUrl iconSource READ iconSource WRITE setIconSource NOTIFY iconSourceChanged)
     Q_PROPERTY(QString iconName READ iconName WRITE setIconName NOTIFY iconNameChanged)
+    Q_PROPERTY(bool checkable READ checkable WRITE setCheckable NOTIFY checkableChanged)
+    Q_PROPERTY(bool checked READ checked WRITE setChecked NOTIFY toggled)
+    Q_PROPERTY(QQuickExclusiveGroup *exclusiveGroup READ exclusiveGroup WRITE setExclusiveGroup NOTIFY exclusiveGroupChanged)
 
     Q_PROPERTY(QVariant __icon READ iconVariant NOTIFY __iconChanged)
 
@@ -134,6 +137,9 @@ Q_SIGNALS:
     void enabledChanged();
     void iconSourceChanged();
     void iconNameChanged();
+    void toggled(bool checked);
+    void checkableChanged();
+    void exclusiveGroupChanged();
 
     void __textChanged();
     void __iconChanged();
@@ -153,6 +159,15 @@ public:
     virtual QString iconName() const;
     void setIconName(const QString &icon);
 
+    bool checkable() const;
+    void setCheckable(bool checkable);
+
+    bool checked() const;
+    void setChecked(bool checked);
+
+    QQuickExclusiveGroup *exclusiveGroup() const;
+    void setExclusiveGroup(QQuickExclusiveGroup *);
+
     QVariant iconVariant() const { return QVariant(icon()); }
 
 protected:
@@ -163,6 +178,11 @@ protected Q_SLOTS:
     virtual void updateText();
     void updateEnabled();
     void updateIcon();
+    void updateCheckable();
+    void updateChecked();
+
+protected:
+    QQuickAction *m_boundAction;
 
 private:
     QQuickAction *m_action;
@@ -172,9 +192,6 @@ class QQuickMenuItem : public QQuickMenuText
 {
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
-    Q_PROPERTY(bool checkable READ checkable WRITE setCheckable NOTIFY checkableChanged)
-    Q_PROPERTY(bool checked READ checked WRITE setChecked NOTIFY toggled)
-    Q_PROPERTY(QQuickExclusiveGroup *exclusiveGroup READ exclusiveGroup WRITE setExclusiveGroup NOTIFY exclusiveGroupChanged)
     Q_PROPERTY(QVariant shortcut READ shortcut WRITE setShortcut NOTIFY shortcutChanged)
     Q_PROPERTY(QQuickAction *action READ boundAction WRITE setBoundAction NOTIFY actionChanged)
 
@@ -183,11 +200,8 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void triggered();
-    void toggled(bool checked);
 
     void textChanged();
-    void checkableChanged();
-    void exclusiveGroupChanged();
     void shortcutChanged();
     void actionChanged();
 
@@ -208,30 +222,16 @@ public:
     QVariant shortcut() const;
     void setShortcut(const QVariant &shortcut);
 
-    bool checkable() const;
-    void setCheckable(bool checkable);
-
-    bool checked() const;
-    void setChecked(bool checked);
-
-    QQuickExclusiveGroup *exclusiveGroup() const;
-    void setExclusiveGroup(QQuickExclusiveGroup *);
-
     void setParentMenu(QQuickMenu *parentMenu);
 
 protected Q_SLOTS:
     void updateShortcut();
-    void updateCheckable();
-    void updateChecked();
     void bindToAction(QQuickAction *action);
     void unbindFromAction(QObject *action);
 
 protected:
     QIcon icon() const;
     QQuickAction *action() const;
-
-private:
-    QQuickAction *m_boundAction;
 };
 
 QT_END_NAMESPACE
