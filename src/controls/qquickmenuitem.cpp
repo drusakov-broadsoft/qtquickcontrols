@@ -194,7 +194,7 @@ QQuickMenuSeparator::QQuickMenuSeparator(QObject *parent)
 }
 
 QQuickMenuText::QQuickMenuText(QObject *parent, QQuickMenuItemType::MenuItemType type)
-    : QQuickMenuBase(parent, type), m_action(new QQuickAction(this))
+    : QQuickMenuBase(parent, type), m_action(new QQuickAction(this)), m_boundAction(0)
 {
     connect(m_action, SIGNAL(enabledChanged()), this, SLOT(updateEnabled()));
     connect(m_action, SIGNAL(textChanged()), this, SLOT(updateText()));
@@ -202,6 +202,8 @@ QQuickMenuText::QQuickMenuText(QObject *parent, QQuickMenuItemType::MenuItemType
     connect(m_action, SIGNAL(iconNameChanged()), this, SIGNAL(iconNameChanged()));
     connect(m_action, SIGNAL(iconSourceChanged()), this, SLOT(updateIcon()));
     connect(m_action, SIGNAL(iconSourceChanged()), this, SIGNAL(iconSourceChanged()));
+    connect(m_action, SIGNAL(checkableChanged()), this, SLOT(updateCheckable()));
+    connect(m_action, SIGNAL(toggled(bool)), this, SLOT(updateChecked()));
 }
 
 QQuickMenuText::~QQuickMenuText()
@@ -252,6 +254,60 @@ void QQuickMenuText::setIconName(const QString &iconName)
 QIcon QQuickMenuText::icon() const
 {
     return m_action->icon();
+}
+
+bool QQuickMenuText::checkable() const
+{
+    return action()->isCheckable();
+}
+
+void QQuickMenuText::setCheckable(bool checkable)
+{
+    if (!m_boundAction)
+        action()->setCheckable(checkable);
+}
+
+void QQuickMenuText::updateCheckable()
+{
+    if (platformItem()) {
+        platformItem()->setCheckable(checkable());
+        syncWithPlatformMenu();
+    }
+
+    emit checkableChanged();
+}
+
+bool QQuickMenuText::checked() const
+{
+    return action()->isChecked();
+}
+
+void QQuickMenuText::setChecked(bool checked)
+{
+    if (!m_boundAction)
+        action()->setChecked(checked);
+}
+
+void QQuickMenuText::updateChecked()
+{
+    bool checked = this->checked();
+    if (platformItem()) {
+        platformItem()->setChecked(checked);
+        syncWithPlatformMenu();
+    }
+
+    emit toggled(checked);
+}
+
+QQuickExclusiveGroup1 *QQuickMenuText::exclusiveGroup() const
+{
+    return action()->exclusiveGroup();
+}
+
+void QQuickMenuText::setExclusiveGroup(QQuickExclusiveGroup1 *eg)
+{
+    if (!m_boundAction)
+        action()->setExclusiveGroup(eg);
 }
 
 void QQuickMenuText::updateText()
@@ -457,14 +513,12 @@ void QQuickMenuText::updateIcon()
 */
 
 QQuickMenuItem1::QQuickMenuItem1(QObject *parent)
-    : QQuickMenuText(parent, QQuickMenuItemType::Item), m_boundAction(0)
+    : QQuickMenuText(parent, QQuickMenuItemType::Item)
 {
     connect(this, SIGNAL(__textChanged()), this, SIGNAL(textChanged()));
 
     connect(action(), SIGNAL(shortcutChanged(QVariant)), this, SLOT(updateShortcut()));
     connect(action(), SIGNAL(triggered()), this, SIGNAL(triggered()));
-    connect(action(), SIGNAL(checkableChanged()), this, SLOT(updateCheckable()));
-    connect(action(), SIGNAL(toggled(bool)), this, SLOT(updateChecked()));
     if (platformItem())
         connect(platformItem(), SIGNAL(activated()), this, SLOT(trigger()), Qt::QueuedConnection);
 }
@@ -612,60 +666,6 @@ void QQuickMenuItem1::updateShortcut()
         syncWithPlatformMenu();
     }
     emit shortcutChanged();
-}
-
-bool QQuickMenuItem1::checkable() const
-{
-    return action()->isCheckable();
-}
-
-void QQuickMenuItem1::setCheckable(bool checkable)
-{
-    if (!m_boundAction)
-        action()->setCheckable(checkable);
-}
-
-void QQuickMenuItem1::updateCheckable()
-{
-    if (platformItem()) {
-        platformItem()->setCheckable(checkable());
-        syncWithPlatformMenu();
-    }
-
-    emit checkableChanged();
-}
-
-bool QQuickMenuItem1::checked() const
-{
-    return action()->isChecked();
-}
-
-void QQuickMenuItem1::setChecked(bool checked)
-{
-    if (!m_boundAction)
-        action()->setChecked(checked);
-}
-
-void QQuickMenuItem1::updateChecked()
-{
-    bool checked = this->checked();
-    if (platformItem()) {
-        platformItem()->setChecked(checked);
-        syncWithPlatformMenu();
-    }
-
-    emit toggled(checked);
-}
-
-QQuickExclusiveGroup1 *QQuickMenuItem1::exclusiveGroup() const
-{
-    return action()->exclusiveGroup();
-}
-
-void QQuickMenuItem1::setExclusiveGroup(QQuickExclusiveGroup1 *eg)
-{
-    if (!m_boundAction)
-        action()->setExclusiveGroup(eg);
 }
 
 void QQuickMenuItem1::setEnabled(bool enabled)

@@ -571,14 +571,15 @@ void QQuickStyleItem::initStyleOption()
                     opt->text += QLatin1Char('\t') + shortcut;
                     opt->tabWidth = qMax(opt->tabWidth, qRound(textWidth(shortcut)));
                 }
-
-                if (m_properties[QStringLiteral("checkable")].toBool()) {
-                    opt->checked = on();
-                    QVariant exclusive = m_properties[QStringLiteral("exclusive")];
-                    opt->checkType = exclusive.toBool() ? QStyleOptionMenuItem::Exclusive :
-                                                          QStyleOptionMenuItem::NonExclusive;
-                }
             }
+
+            if (m_properties[QStringLiteral("checkable")].toBool()) {
+                opt->checked = on();
+                QVariant exclusive = m_properties[QStringLiteral("exclusive")];
+                opt->checkType = exclusive.toBool() ? QStyleOptionMenuItem::Exclusive :
+                                                      QStyleOptionMenuItem::NonExclusive;
+            }
+
             if (m_properties[QStringLiteral("icon")].canConvert<QIcon>())
                 opt->icon = m_properties[QStringLiteral("icon")].value<QIcon>();
             setProperty("_q_showUnderlined", m_hints["showUnderlined"].toBool());
