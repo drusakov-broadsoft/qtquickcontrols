@@ -265,8 +265,12 @@ QQuickMenu::QQuickMenu(QObject *parent)
       m_popupVisible(false),
       m_containersCount(0),
       m_xOffset(0),
-      m_yOffset(0)
+      m_yOffset(0),
+      m_identifier(0)
 {
+    static int identifier = 1;
+    m_identifier = identifier++;
+
     connect(this, SIGNAL(__textChanged()), this, SIGNAL(titleChanged()));
 
     m_platformMenu = QGuiApplicationPrivate::platformTheme()->createPlatformMenu();
@@ -357,6 +361,11 @@ void QQuickMenu::setXOffset(qreal x)
 void QQuickMenu::setYOffset(qreal y)
 {
     m_yOffset = y;
+}
+
+void QQuickMenu::setIdentifier(int id)
+{
+    m_identifier = id;
 }
 
 void QQuickMenu::setSelectedIndex(int index)
@@ -464,6 +473,14 @@ void QQuickMenu::__popup(const QRectF &targetRect, int atItemIndex, MenuType men
     }
 }
 
+void QQuickMenu::__setParent(QObject *newParent)
+{
+    if (parent() != newParent) {
+        setParent(newParent);
+        emit parentChanged();
+    }
+}
+
 void QQuickMenu::setMenuContentItem(QQuickItem *item)
 {
     if (m_menuContentItem != item) {
@@ -529,6 +546,15 @@ void QQuickMenu::windowVisibleChanged(bool v)
             m_popupWindow->transientParent()->setKeyboardGrabEnabled(true);
         }
         __closeMenu();
+    }
+}
+
+void QQuickMenu::itemRemoved(QObject *item)
+{
+    if (QQuickMenuBase *menuItem = qobject_cast<QQuickMenuBase *>(item)) {
+        if (m_menuItems.removeOne(menuItem)) {
+            --m_itemsCount;
+        }
     }
 }
 
@@ -684,10 +710,12 @@ void QQuickMenu::insertItem(int index, QQuickMenuBase *menuItem)
             itemIndex = itemIndexForListIndex(m_menuItems.indexOf(container)) + index;
         } else {
             itemIndex = itemIndexForListIndex(index);
+            connect(menuItem, SIGNAL(destroyed(QObject*)), this, SLOT(itemRemoved(QObject*)));
             m_menuItems.insert(itemIndex, menuItem);
         }
     } else {
         itemIndex = index;
+        connect(menuItem, SIGNAL(destroyed(QObject*)), this, SLOT(itemRemoved(QObject*)));
         m_menuItems.insert(index, menuItem);
     }
 
@@ -704,8 +732,10 @@ void QQuickMenu::removeItem(QQuickMenuBase *menuItem)
     QQuickMenuItemContainer *container = menuItem->parent() != this ? m_containers[menuItem->parent()] : 0;
     if (container)
         container->removeItem(menuItem);
-    else
+    else {
+        disconnect(menuItem, SIGNAL(destroyed(QObject*)), this, SLOT(itemRemoved(QObject*)));
         m_menuItems.removeOne(menuItem);
+    }
 
     --m_itemsCount;
     emit itemsChanged();

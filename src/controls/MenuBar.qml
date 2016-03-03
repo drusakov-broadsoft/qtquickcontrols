@@ -100,7 +100,6 @@ MenuBarPrivate {
         Keys.forwardTo: [item]
         property real preferredWidth: parent && active ? parent.width : 0
         property bool altPressed: item ? item.__altPressed : false
-
         Loader {
             id: styleLoader
             property alias __control: topLoader.item
@@ -193,7 +192,7 @@ MenuBarPrivate {
         Keys.onLeftPressed: {
             if (d.openedMenuIndex > 0) {
                 var idx = d.openedMenuIndex - 1
-                while (idx >= 0 && !(root.menus[idx].enabled && root.menus[idx].visible))
+                while (idx >= 0 && !(root.menus[idx].enabled && root.menus[idx].visible && row.children[idx].menuFitsInBar))
                     idx--
                 if (idx >= 0) {
                     d.preselectMenuItem = true
@@ -202,7 +201,7 @@ MenuBarPrivate {
                 }
             } else if (d.menuIndex > 0) {
                 var idx = d.menuIndex - 1
-                while (idx >= 0 && !(root.menus[idx].enabled && root.menus[idx].visible))
+                while (idx >= 0 && !(root.menus[idx].enabled && root.menus[idx].visible && row.children[idx].menuFitsInBar))
                     idx--
                 if (idx >= 0) {
                     d.menuIndex = idx
@@ -219,18 +218,73 @@ MenuBarPrivate {
                     idx++
                 if (idx < root.menus.length) {
                     d.preselectMenuItem = true
-                    d.openedMenuIndex = idx
-                    d.menuIndex = idx
+                    if (row.children[idx].menuFitsInBar) {
+                        d.openedMenuIndex = idx
+                        d.menuIndex = idx
+                    } else {
+                        d.openedMenuIndex = extensionButton.__menuItemIndex
+                        d.menuIndex = extensionButton.__menuItemIndex
+                    }
                 }
             } else if (d.menuIndex !== -1 && d.menuIndex < root.menus.length - 1) {
                 var idx = d.menuIndex + 1
                 while (idx < root.menus.length && !(root.menus[idx].enabled && root.menus[idx].visible))
                     idx++
                 if (idx < root.menus.length) {
-                    d.menuIndex = idx
+                    if (row.children[idx].menuFitsInBar) {
+                        d.menuIndex = idx
+                    } else {
+                        d.menuIndex = extensionButton.__menuItemIndex
+                    }
                 }
             } else {
                 event.accepted = false;
+            }
+        }
+
+        function getExtensionMenuItem(identifier) {
+            for (var j=0; j < extensionButton.__menuItem.items.length; ++j) {
+                if (extensionButton.__menuItem.items[j].identifier === identifier) {
+                    return extensionButton.__menuItem.items[j]
+                }
+            }
+            return null
+        }
+
+        function populateExtensionMenu() {
+            for (var i = 0; i < row.children.length - 1; ++i) {
+                if (row.children[i] !== itemsRepeater) {
+                    var it
+                    if (row.children[i].__menuItem.visible && !row.children[i].menuFitsInBar) {
+                        it = getExtensionMenuItem(row.children[i].__menuItem.identifier)
+                        if (it === null) {
+                            var insertIndex = 0
+                            for (var l = 0; l < i; ++l) {
+                                if (getExtensionMenuItem(row.children[l].__menuItem.identifier) !== null) {
+                                    ++insertIndex
+                                }
+                            }
+                            it = extensionButton.__menuItem.insertMenu(insertIndex, row.children[i].__menuItem.title)
+                            it.identifier = row.children[i].__menuItem.identifier
+                        } else if (it.title !== row.children[i].__menuItem.title) {
+                            it.title = row.children[i].__menuItem.title
+                        }
+
+                        for (var j = it.items.length; row.children[i].__menuItem.items.length; ++j) {
+                            var it2 = row.children[i].__menuItem.items[0]
+                            row.children[i].__menuItem.removeItem(it2)
+                            it.insertItem(j, it2)
+                        }
+                    } else {
+                        it = getExtensionMenuItem (row.children[i].__menuItem.identifier)
+                        if (it !== null) {
+                            extensionButton.__menuItem.removeItem(it)
+                            for (var k = 0; k < it.items.length; ++k) {
+                                row.children[i].__menuItem.insertItem(k, it.items[k])
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -240,6 +294,10 @@ MenuBarPrivate {
             y: d.style ? d.style.padding.top : 0
             width: parent.width - (d.style ? d.style.padding.left + d.style.padding.right : 0)
             LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
+            onWidthChanged: menuBarLoader.populateExtensionMenu()
+
+            property double extButtonWidth: 0
+            property int lastItemIndex: -1
 
             Repeater {
                 id: itemsRepeater
@@ -267,7 +325,31 @@ MenuBarPrivate {
                     readonly property var __menuItem: modelData
                     readonly property int __menuItemIndex: index
                     sourceComponent: d.style ? d.style.itemDelegate : null
-                    visible: __menuItem.visible
+                    property bool lastMenu: false
+                    property bool menuFitsInBar: {
+                        var sum = 0
+                        var fits = true
+                        for (var i = 0; i < __menuItemIndex && fits; ++i) {
+                            if (row.children[i] !== itemsRepeater) {
+                                if (!row.children[i].menuFitsInBar) {
+                                    fits = false
+                                } else if (row.children[i].__menuItem.visible) {
+                                    sum += row.children[i].width + row.spacing
+                                    if (sum > row.width - row.extButtonWidth) {
+                                        fits = false
+                                    }
+                                }
+                            }
+                        }
+                        return fits && sum + row.children[__menuItemIndex].width <= row.width - (row.lastItemIndex == __menuItemIndex ? 0 : row.extButtonWidth + row.spacing)
+                    }
+                    onMenuFitsInBarChanged: {
+                        if (menuFitsInBar)
+                            __menuItem.itemsChanged.disconnect(menuBarLoader.populateExtensionMenu)
+                        else
+                            __menuItem.itemsChanged.connect(menuBarLoader.populateExtensionMenu)
+                    }
+                    visible: __menuItem.visible && menuFitsInBar
 
                     Connections {
                         target: d
@@ -294,7 +376,19 @@ MenuBarPrivate {
                             if (!__menuItem.__popupVisible && d.openedMenuIndex === index)
                                 d.openedMenuIndex = -1
                         }
-                        onTitleChanged: setupMnemonics(__menuItem)
+                        onTitleChanged: {
+                            menuBarLoader.populateExtensionMenu()
+                            setupMnemonics(__menuItem)
+                        }
+                        onVisibleChanged: {
+                            var result = -1
+                            for (var i = 0; i < row.children.length; ++i) {
+                                if (row.children[i] !== itemsRepeater && row.children[i].__menuItem.visible) {
+                                    result = i
+                                }
+                            }
+                            row.lastItemIndex = result
+                        }
                     }
 
                     Connections {
@@ -324,6 +418,87 @@ MenuBarPrivate {
                 }
             }
         }
+        Loader {
+            id: extensionButton
+            height: row.height
+            anchors.right: parent.right
+
+            Accessible.role: Accessible.MenuItem
+            Accessible.name: StyleHelpers.removeMnemonics(opts.text)
+            Accessible.onPressAction: d.openedMenuIndex = opts.index
+
+            property var styleData: QtObject {
+                id: opts
+                readonly property int index: extensionButton.__menuItemIndex
+                readonly property string text: !!extensionButton.__menuItem && extensionButton.__menuItem.title
+                readonly property bool enabled: !!extensionButton.__menuItem && extensionButton.__menuItem.enabled
+                readonly property bool selected: menuMouseArea.hoveredItem === extensionButton || d.altPressed && d.menuIndex === index
+                readonly property bool open: !!extensionButton.__menuItem && extensionButton.__menuItem.__popupVisible || d.openedMenuIndex === index
+                readonly property bool underlineMnemonic: d.altPressed
+            }
+
+            Loader {
+                id: extensionMenuLoader
+                sourceComponent: Menu {
+                    title: "\u226b"
+                    visible: row.lastItemIndex != -1 && !row.children[row.lastItemIndex].menuFitsInBar
+                    Component.onCompleted: __setParent(root)
+                }
+            }
+            readonly property var __menuItem: extensionMenuLoader.item
+            readonly property int __menuItemIndex: root.menus.length
+            sourceComponent: d.style ? d.style.itemDelegate : null
+
+            visible: __menuItem.visible
+            onVisibleChanged: visibleTimer.start()
+            Timer {
+                id: visibleTimer
+                interval: 1
+                onTriggered: row.extButtonWidth = extensionButton.visible ? extensionButton.width : 0
+            }
+
+            onLoaded: {
+                populateExtensionMenuWhenLoaded.start()
+            }
+            Timer {
+                id: populateExtensionMenuWhenLoaded
+                interval: 10
+                onTriggered: menuBarLoader.populateExtensionMenu()
+            }
+
+            Connections {
+                target: d
+                onOpenedMenuIndexChanged: {
+                    if (!extensionButton.__menuItem.enabled)
+                        return;
+                    if (d.openedMenuIndex === extensionButton.__menuItemIndex) {
+                        if (extensionButton.__menuItem.__usingDefaultStyle)
+                            extensionButton.__menuItem.style = d.style.menuStyle
+                        extensionButton.__menuItem.__popup(Qt.rect(row.LayoutMirroring.enabled ? extensionButton.width : 0,
+                                                           menuBarLoader.height - d.heightPadding, 0, 0), 0)
+                        if (d.preselectMenuItem)
+                            extensionButton.__menuItem.__currentIndex = 0
+                    } else if (extensionButton.__menuItem.__popupVisible) {
+                        extensionButton.__menuItem.__dismissMenu()
+                        extensionButton.__menuItem.__destroyAllMenuPopups()
+                    }
+                }
+            }
+
+            Connections {
+                target: extensionButton.__menuItem
+                onPopupVisibleChanged: {
+                    if (!extensionButton.__menuItem.__popupVisible && d.openedMenuIndex === extensionButton.__menuItemIndex) {
+                        menuMouseArea.ignorePressed = true
+                        d.openedMenuIndex = -1
+                    }
+                }
+            }
+
+            Component.onCompleted: {
+                extensionButton.__menuItem.__visualItem = extensionButton
+            }
+        }
 
         MouseArea {
             id: menuMouseArea
@@ -332,21 +507,27 @@ MenuBarPrivate {
 
             onPositionChanged: updateCurrentItem(mouse)
             onPressed: {
-                if (updateCurrentItem(mouse)) {
+                if (!ignorePressed && updateCurrentItem(mouse)) {
                     d.preselectMenuItem = false
                     d.openedMenuIndex = currentItem.__menuItemIndex
                 }
+                ignorePressed = false
             }
             onExited: hoveredItem = null
 
             property Item currentItem: null
             property Item hoveredItem: null
+            property bool ignorePressed: false
             function updateCurrentItem(mouse) {
                 var pos = mapToItem(row, mouse.x, mouse.y)
                 if (!hoveredItem || !hoveredItem.contains(Qt.point(pos.x - currentItem.x, pos.y - currentItem.y))) {
                     hoveredItem = row.childAt(pos.x, pos.y)
-                    if (!hoveredItem)
-                        return false;
+                    if (!hoveredItem) {
+                        pos = mapToItem(extensionButton, mouse.x, mouse.y)
+                        hoveredItem = extensionButton.contains(Qt.point(pos.x, pos.y)) ? extensionButton : null
+                        if (!hoveredItem)
+                            return false;
+                    }
                     currentItem = hoveredItem
                     if (d.openedMenuIndex !== -1) {
                         d.preselectMenuItem = false

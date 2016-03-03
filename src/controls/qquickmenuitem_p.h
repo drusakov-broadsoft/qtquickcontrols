@@ -74,12 +74,13 @@ class QQuickMenuBase: public QObject
     Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
     Q_PROPERTY(QQuickMenuItemType::MenuItemType type READ type CONSTANT)
 
-    Q_PROPERTY(QObject *__parentMenu READ parentMenuOrMenuBar CONSTANT)
+    Q_PROPERTY(QObject *__parentMenu READ parentMenuOrMenuBar NOTIFY parentChanged)
     Q_PROPERTY(bool __isNative READ isNative CONSTANT)
     Q_PROPERTY(QQuickItem *__visualItem READ visualItem WRITE setVisualItem)
 
 Q_SIGNALS:
     void visibleChanged();
+    void parentChanged();
 
 public:
     QQuickMenuBase(QObject *parent, int type);

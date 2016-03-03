@@ -70,6 +70,7 @@ class QQuickMenu : public QQuickMenuText
     Q_PROPERTY(qreal __yOffset READ yOffset WRITE setYOffset)
     Q_PROPERTY(QQuickAction *__action READ action CONSTANT)
     Q_PROPERTY(QRect __popupGeometry READ popupGeometry NOTIFY __popupGeometryChanged)
+    Q_PROPERTY(int identifier READ identifier WRITE setIdentifier)
     Q_ENUMS(MenuType)
 
 public:
@@ -87,6 +88,7 @@ public:
     Q_INVOKABLE void clear();
 
     Q_INVOKABLE void __popup(const QRectF &targetRect, int atItemIndex = -1, MenuType menuType = DefaultMenu);
+    Q_INVOKABLE void __setParent(QObject *);
 
 public Q_SLOTS:
     void __closeMenu();
@@ -135,6 +137,9 @@ public:
     qreal yOffset() const { return m_yOffset; }
     void setYOffset(qreal);
 
+    int identifier() const { return m_identifier; }
+    void setIdentifier(int id);
+
     QQuickItem *menuContentItem() const { return m_menuContentItem; }
     bool popupVisible() const { return m_popupVisible; }
 
@@ -151,6 +156,8 @@ protected Q_SLOTS:
 
     void updateText();
     void windowVisibleChanged(bool);
+
+    void itemRemoved(QObject *);
 
 private:
     QQuickWindow *findParentWindow();
@@ -189,6 +196,7 @@ private:
     qreal m_xOffset;
     qreal m_yOffset;
     QFont m_font;
+    int m_identifier;
 };
 
 QT_END_NAMESPACE
