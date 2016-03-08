@@ -63,6 +63,7 @@ class QQuickMenu : public QQuickMenuText
 
     Q_PROPERTY(int __selectedIndex READ selectedIndex WRITE setSelectedIndex NOTIFY __selectedIndexChanged)
     Q_PROPERTY(bool __popupVisible READ popupVisible NOTIFY popupVisibleChanged)
+    Q_PROPERTY(bool __handleMouseMovedInRelease READ handleMouseMovedInRelease WRITE setHandleMouseMovedInRelease)
     Q_PROPERTY(QQuickItem *__contentItem READ menuContentItem WRITE setMenuContentItem NOTIFY menuContentItemChanged)
     Q_PROPERTY(int __minimumWidth READ minimumWidth WRITE setMinimumWidth NOTIFY minimumWidthChanged)
     Q_PROPERTY(QFont __font READ font WRITE setFont)
@@ -143,6 +144,9 @@ public:
     QQuickItem *menuContentItem() const { return m_menuContentItem; }
     bool popupVisible() const { return m_popupVisible; }
 
+    bool handleMouseMovedInRelease() const { return m_handleMouseMovedInRelease; }
+    void setHandleMouseMovedInRelease(bool);
+
     bool isNative() { return m_platformMenu != 0; }
 
     QRect popupGeometry() const;
@@ -197,6 +201,7 @@ private:
     qreal m_yOffset;
     QFont m_font;
     int m_identifier;
+    bool m_handleMouseMovedInRelease;
 };
 
 QT_END_NAMESPACE

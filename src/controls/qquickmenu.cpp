@@ -266,7 +266,8 @@ QQuickMenu::QQuickMenu(QObject *parent)
       m_containersCount(0),
       m_xOffset(0),
       m_yOffset(0),
-      m_identifier(0)
+      m_identifier(0),
+      m_handleMouseMovedInRelease(true)
 {
     static int identifier = 1;
     m_identifier = identifier++;
@@ -368,6 +369,11 @@ void QQuickMenu::setIdentifier(int id)
     m_identifier = id;
 }
 
+void QQuickMenu::setHandleMouseMovedInRelease(bool handle)
+{
+    m_handleMouseMovedInRelease = handle;
+}
+
 void QQuickMenu::setSelectedIndex(int index)
 {
     if (m_selectedIndex == index)
@@ -455,6 +461,7 @@ void QQuickMenu::__popup(const QRectF &targetRect, int atItemIndex, MenuType men
         m_platformMenu->showPopup(parentWindow, globalTargetRect.toRect(), atItem ? atItem->platformItem() : 0);
     } else {
         m_popupWindow = new QQuickMenuPopupWindow(this);
+        m_popupWindow->setHandleMouseMovedInRelease(m_handleMouseMovedInRelease);
         if (visualItem())
             m_popupWindow->setParentItem(visualItem());
         else

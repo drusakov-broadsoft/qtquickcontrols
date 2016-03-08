@@ -400,7 +400,7 @@ MenuBarPrivate {
 
                     Component.onCompleted: {
                         __menuItem.__visualItem = menuItemLoader
-
+                        __menuItem.__handleMouseMovedInRelease = false
                         setupMnemonics(__menuItem)
                     }
 
@@ -499,6 +499,7 @@ MenuBarPrivate {
 
             Component.onCompleted: {
                 extensionButton.__menuItem.__visualItem = extensionButton
+                extensionButton.__menuItem.__handleMouseMovedInRelease = false
             }
         }
 

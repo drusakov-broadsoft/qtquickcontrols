@@ -46,7 +46,7 @@ QT_BEGIN_NAMESPACE
 QQuickPopupWindow::QQuickPopupWindow() :
     QQuickWindow(), m_parentItem(0), m_contentItem(0),
     m_mouseMoved(false), m_needsActivatedEvent(true),
-    m_dismissed(false)
+    m_dismissed(false), m_handleMouseMovedInRelease(true)
 {
     setFlags(Qt::Popup);
     connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)),
@@ -117,6 +117,11 @@ void QQuickPopupWindow::setParentItem(QQuickItem *item)
         setTransientParent(m_parentItem->window());
 }
 
+void QQuickPopupWindow::setHandleMouseMovedInRelease(bool handle)
+{
+    m_handleMouseMovedInRelease = handle;
+}
+
 void QQuickPopupWindow::setPopupContentItem(QQuickItem *contentItem)
 {
     if (!contentItem)
@@ -154,10 +159,11 @@ void QQuickPopupWindow::mouseMoveEvent(QMouseEvent *e)
 void QQuickPopupWindow::mousePressEvent(QMouseEvent *e)
 {
     QRect rect = QRect(QPoint(), size());
-    if (rect.contains(e->pos()))
+    if (rect.contains(e->pos())) {
         QQuickWindow::mousePressEvent(e);
-    else
+    } else {
         forwardEventToTransientParent(e);
+    }
 }
 
 void QQuickPopupWindow::mouseReleaseEvent(QMouseEvent *e)
@@ -172,6 +178,8 @@ void QQuickPopupWindow::mouseReleaseEvent(QMouseEvent *e)
         }
         m_mouseMoved = true; // Initial mouse release counts as move.
     } else {
+        if (!m_handleMouseMovedInRelease)
+            m_mouseMoved = false;
         forwardEventToTransientParent(e);
     }
 }
