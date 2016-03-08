@@ -359,16 +359,28 @@ MenuBarPrivate {
                             if (!__menuItem.enabled)
                                 return;
                             if (d.openedMenuIndex === index) {
-                                if (__menuItem.__usingDefaultStyle)
-                                    __menuItem.style = d.style.menuStyle
-                                __menuItem.__popup(Qt.rect(row.LayoutMirroring.enabled ? menuItemLoader.width : 0,
-                                                   menuBarLoader.height - d.heightPadding, 0, 0), 0)
-                                if (d.preselectMenuItem)
-                                    __menuItem.__currentIndex = 0
+                                timerToOpenMenu.item = __menuItem
+                                timerToOpenMenu.restart()
                             } else if (__menuItem.__popupVisible) {
                                 __menuItem.__dismissMenu()
                                 __menuItem.__destroyAllMenuPopups()
                             }
+                        }
+                    }
+
+                    Timer {
+                        id: timerToOpenMenu
+                        property var item: null
+                        interval: 10
+                        running: false
+                        repeat: false
+                        onTriggered: {
+                            if (item.__usingDefaultStyle)
+                                item.style = d.style.menuStyle
+                            item.__popup(Qt.rect(row.LayoutMirroring.enabled ? menuItemLoader.width : 0,
+                                               menuBarLoader.height - d.heightPadding, 0, 0), 0)
+                            if (d.preselectMenuItem)
+                                item.__currentIndex = 0
                         }
                     }
 
