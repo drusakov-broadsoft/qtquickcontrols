@@ -285,7 +285,7 @@ void QQuickAction::setShortcut(const QVariant &arg)
     if (arg.type() == QVariant::Int)
         sequence = QKeySequence(static_cast<QKeySequence::StandardKey>(arg.toInt()));
     else
-        sequence = QKeySequence::fromString(arg.toString());
+        sequence = QKeySequence::fromString(arg.toString(), QKeySequence::NativeText);
 
     if (sequence == m_shortcut)
         return;
