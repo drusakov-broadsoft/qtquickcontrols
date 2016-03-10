@@ -272,6 +272,26 @@ Loader {
                 property alias menuItem: menuItemLoader.item
                 value: menuItem ? Math.max(__menu.__minimumWidth, content.width) - 2 * menuItem.x : 0
             }
+
+            Connections {
+                target: __menuItem
+                ignoreUnknownSignals: true
+                onTriggered: {
+                    if (__menu.__parentContentItem)
+                        __menu.__parentContentItem.item.__altPressed = false
+                    __menu.__dismissMenu()
+                    __menu.__destroyAllMenuPopups()
+                }
+            }
+
+            Connections {
+                target: Boolean(__menuItem.__action) ? __menuItem.__action : null
+                ignoreUnknownSignals: true
+                onTriggered: {
+                    __menu.__currentIndex = menuItemLoader.__menuItemIndex
+                    menuItemLoader.__showSubMenu(true /*immediately*/)
+                }
+            }
         }
     }
 }
