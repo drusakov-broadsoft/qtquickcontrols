@@ -175,6 +175,7 @@ MenuBarPrivate {
                 if (!d.altPressed) {
                     d.menuIndex = 0
                     d.altPressed = true
+                    forceActiveFocus(Qt.MenuBarFocusReason)
                 } else
                     d.dismissActiveFocus(event, true)
             } else if (d.altPressed && (action = d.mnemonicsMap[event.text.toUpperCase()])) {
@@ -407,7 +408,10 @@ MenuBarPrivate {
 
                     Connections {
                         target: __menuItem.__action
-                        onTriggered: d.openedMenuIndex = __menuItemIndex
+                        onTriggered: {
+                            d.menuIndex = __menuItemIndex
+                            d.openedMenuIndex = __menuItemIndex
+                        }
                     }
 
                     Component.onCompleted: {
