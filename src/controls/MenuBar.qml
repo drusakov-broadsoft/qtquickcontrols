@@ -144,6 +144,21 @@ MenuBarPrivate {
 
             property bool altPressed: false
             property var mnemonicsMap: ({})
+            property var extensionMnemonicsMap: ({})
+
+            property Timer delayedTriggerTimer: Timer {
+                interval: 1
+                repeat: false
+                property var action: null
+                onActionChanged: {
+                    if (action)
+                        start()
+                }
+                onTriggered: {
+                    action.trigger()
+                    action = null
+                }
+            }
 
             function dismissActiveFocus(event, reason) {
                 if (reason) {
@@ -164,6 +179,30 @@ MenuBarPrivate {
                     event.accepted = false
                 }
             }
+
+            function setupMnemonics(item, extensionAction) {
+                var title = item.title
+                var ampersandPos = title.indexOf("&")
+                if (ampersandPos !== -1) {
+                    var mnemonic
+                    for(mnemonic in mnemonicsMap) {
+                        if (mnemonicsMap[mnemonic] == item.__action) {
+                            mnemonicsMap[mnemonic] = null
+                            break
+                        }
+                    }
+                    for(mnemonic in extensionMnemonicsMap) {
+                        if (extensionMnemonicsMap[mnemonic] == item.__action) {
+                            extensionMnemonicsMap[mnemonic] = null
+                            mnemonicsMap[mnemonic] = null
+                            break
+                        }
+                    }
+                    mnemonicsMap[title[ampersandPos + 1].toUpperCase()] = extensionAction ? extensionAction : item.__action
+                    if (extensionAction)
+                        extensionMnemonicsMap[title[ampersandPos + 1].toUpperCase()] = item.__action
+                }
+            }
         }
         property alias __altPressed: d.altPressed // Needed for the menu contents
 
@@ -182,6 +221,10 @@ MenuBarPrivate {
                 d.preselectMenuItem = true
                 action.trigger()
                 event.accepted = true
+                if (action == extensionButton.__menuItem.__action) {
+                    if((action = d.extensionMnemonicsMap[event.text.toUpperCase()]))
+                        d.delayedTriggerTimer.action = action
+                }
             }
         }
 
@@ -270,6 +313,7 @@ MenuBarPrivate {
                         } else if (it.title !== row.children[i].__menuItem.title) {
                             it.title = row.children[i].__menuItem.title
                         }
+                        d.setupMnemonics(it, extensionButton.__menuItem.__action)
 
                         for (var j = it.items.length; row.children[i].__menuItem.items.length; ++j) {
                             var it2 = row.children[i].__menuItem.items[0]
@@ -277,12 +321,13 @@ MenuBarPrivate {
                             it.insertItem(j, it2)
                         }
                     } else {
-                        it = getExtensionMenuItem (row.children[i].__menuItem.identifier)
+                        it = getExtensionMenuItem(row.children[i].__menuItem.identifier)
                         if (it !== null) {
                             extensionButton.__menuItem.removeItem(it)
                             for (var k = 0; k < it.items.length; ++k) {
                                 row.children[i].__menuItem.insertItem(k, it.items[k])
                             }
+                            d.setupMnemonics(row.children[i].__menuItem)
                         }
                     }
                 }
@@ -393,7 +438,7 @@ MenuBarPrivate {
                         }
                         onTitleChanged: {
                             menuBarLoader.populateExtensionMenu()
-                            setupMnemonics(__menuItem)
+                            d.setupMnemonics(__menuItem)
                         }
                         onVisibleChanged: {
                             var result = -1
@@ -417,21 +462,7 @@ MenuBarPrivate {
                     Component.onCompleted: {
                         __menuItem.__visualItem = menuItemLoader
                         __menuItem.__handleMouseMovedInRelease = false
-                        setupMnemonics(__menuItem)
-                    }
-
-                    function setupMnemonics(item) {
-                        var title = item.title
-                        var ampersandPos = title.indexOf("&")
-                        if (ampersandPos !== -1) {
-                            for(var mnemonic in d.mnemonicsMap) {
-                                if (d.mnemonicsMap[mnemonic] == item.__action) {
-                                    d.mnemonicsMap[mnemonic] = null
-                                    break
-                                }
-                            }
-                            d.mnemonicsMap[title[ampersandPos + 1].toUpperCase()] = item.__action
-                        }
+                        d.setupMnemonics(__menuItem)
                     }
                 }
             }
@@ -506,10 +537,17 @@ MenuBarPrivate {
             Connections {
                 target: extensionButton.__menuItem
                 onPopupVisibleChanged: {
-                    if (!extensionButton.__menuItem.__popupVisible && d.openedMenuIndex === extensionButton.__menuItemIndex) {
-                        menuMouseArea.ignorePressed = true
+                    if (!extensionButton.__menuItem.__popupVisible && d.openedMenuIndex === extensionButton.__menuItemIndex)
                         d.openedMenuIndex = -1
-                    }
+                }
+            }
+
+            Connections {
+                target: extensionButton.__menuItem.__action
+                ignoreUnknownSignals: true
+                onTriggered: {
+                    d.menuIndex = extensionButton.__menuItemIndex
+                    d.openedMenuIndex = extensionButton.__menuItemIndex
                 }
             }
 
@@ -526,17 +564,15 @@ MenuBarPrivate {
 
             onPositionChanged: updateCurrentItem(mouse)
             onPressed: {
-                if (!ignorePressed && updateCurrentItem(mouse)) {
+                if (updateCurrentItem(mouse)) {
                     d.preselectMenuItem = false
                     d.openedMenuIndex = currentItem.__menuItemIndex
                 }
-                ignorePressed = false
             }
             onExited: hoveredItem = null
 
             property Item currentItem: null
             property Item hoveredItem: null
-            property bool ignorePressed: false
             function updateCurrentItem(mouse) {
                 var pos = mapToItem(row, mouse.x, mouse.y)
                 if (!hoveredItem || !hoveredItem.contains(Qt.point(pos.x - currentItem.x, pos.y - currentItem.y))) {
