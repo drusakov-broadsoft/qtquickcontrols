@@ -281,8 +281,7 @@ Loader {
                 target: __menuItem
                 ignoreUnknownSignals: true
                 onTriggered: {
-                    if (__menu.__parentContentItem)
-                        __menu.__parentContentItem.item.__altPressed = false
+                    unsetAltPressed()
                     __menu.__dismissMenu()
                     __menu.__destroyAllMenuPopups()
                 }
@@ -296,6 +295,15 @@ Loader {
                     menuItemLoader.__showSubMenu(true /*immediately*/)
                 }
             }
+        }
+    }
+
+    function unsetAltPressed() {
+        if (__menu.__parentContentItem) {
+            if (typeof __menu.__parentContentItem.item.__altPressed !== "undefined")
+                __menu.__parentContentItem.item.__altPressed = false
+            else
+                __menu.__parentContentItem.item.unsetAltPressed()
         }
     }
 }
