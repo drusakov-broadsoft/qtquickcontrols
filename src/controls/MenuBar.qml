@@ -433,8 +433,11 @@ MenuBarPrivate {
                     Connections {
                         target: __menuItem
                         onPopupVisibleChanged: {
-                            if (!__menuItem.__popupVisible && d.openedMenuIndex === index)
+                            if (!__menuItem.__popupVisible && d.openedMenuIndex === index) {
+                                __menuItem.__dismissMenu()
+                                __menuItem.__destroyAllMenuPopups()
                                 d.openedMenuIndex = -1
+                            }
                         }
                         onTitleChanged: {
                             menuBarLoader.populateExtensionMenu()
