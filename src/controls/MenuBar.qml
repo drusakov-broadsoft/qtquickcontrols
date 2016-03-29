@@ -430,12 +430,20 @@ MenuBarPrivate {
                         }
                     }
 
+                    Timer {
+                        id: dismissMenuAndDestroyMenuPopupsTimer
+                        interval: 100
+                        onTriggered: {
+                            __menuItem.__dismissMenu()
+                            __menuItem.__destroyAllMenuPopups()
+                        }
+                    }
+
                     Connections {
                         target: __menuItem
                         onPopupVisibleChanged: {
                             if (!__menuItem.__popupVisible && d.openedMenuIndex === index) {
-                                __menuItem.__dismissMenu()
-                                __menuItem.__destroyAllMenuPopups()
+                                dismissMenuAndDestroyMenuPopupsTimer.start()
                                 d.openedMenuIndex = -1
                             }
                         }
