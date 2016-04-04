@@ -256,7 +256,9 @@ MenuBarPrivate {
         }
 
         Keys.onRightPressed: {
-            if (d.openedMenuIndex !== -1 && d.openedMenuIndex < root.menus.length - 1) {
+            if (d.openedMenuIndex === -1 && d.menuIndex === extensionButton.__menuItemIndex) {
+                Keys.onDownPressed(event)
+            } else if (d.openedMenuIndex !== -1 && d.openedMenuIndex < root.menus.length - 1) {
                 var idx = d.openedMenuIndex + 1
                 while (idx < root.menus.length && !(root.menus[idx].enabled && root.menus[idx].visible))
                     idx++
