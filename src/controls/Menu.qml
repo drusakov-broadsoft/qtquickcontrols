@@ -136,6 +136,10 @@ MenuPrivate {
     */
     property Component style
 
+    function selectNextHoverableItem() {
+        __contentItem.item.selectNextHoverableItem()
+    }
+
     Component.onCompleted: {
         if (!style) {
             __usingDefaultStyle = true

@@ -95,6 +95,15 @@ Loader {
 
     focus: true
 
+    function selectNextHoverableItem() {
+        if (__menu.__currentIndex < 0)
+            __menu.__currentIndex = -1
+
+        for (var i = __menu.__currentIndex + 1;
+             i < __menu.items.length && !d.canBeHovered(i); i++)
+            ;
+    }
+
     Keys.onPressed: {
         var item = null
         if (!(event.modifiers & Qt.AltModifier)
@@ -115,12 +124,7 @@ Loader {
     Keys.onEscapePressed: __menu.__dismissMenu()
 
     Keys.onDownPressed: {
-        if (__menu.__currentIndex < 0)
-            __menu.__currentIndex = -1
-
-        for (var i = __menu.__currentIndex + 1;
-             i < __menu.items.length && !d.canBeHovered(i); i++)
-            ;
+        selectNextHoverableItem()
         event.accepted = true
     }
 

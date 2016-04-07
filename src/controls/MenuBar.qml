@@ -428,7 +428,7 @@ MenuBarPrivate {
                             item.__popup(Qt.rect(row.LayoutMirroring.enabled ? menuItemLoader.width : 0,
                                                menuBarLoader.height - d.heightPadding, 0, 0), 0)
                             if (d.preselectMenuItem)
-                                item.__currentIndex = 0
+                                item.selectNextHoverableItem()
                         }
                     }
 
@@ -539,7 +539,7 @@ MenuBarPrivate {
                         extensionButton.__menuItem.__popup(Qt.rect(row.LayoutMirroring.enabled ? extensionButton.width : 0,
                                                            menuBarLoader.height - d.heightPadding, 0, 0), 0)
                         if (d.preselectMenuItem)
-                            extensionButton.__menuItem.__currentIndex = 0
+                            extensionButton.__menuItem.selectNextHoverableItem()
                     } else if (extensionButton.__menuItem.__popupVisible) {
                         extensionButton.__menuItem.__dismissMenu()
                         extensionButton.__menuItem.__destroyAllMenuPopups()
