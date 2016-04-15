@@ -121,7 +121,6 @@ Loader {
             if (item.styleData.type === MenuItemType.Menu) {
                 __menu.__currentIndex = item.__menuItemIndex
                 item.__showSubMenu(true)
-                item.__menuItem.__currentIndex = 0
             } else {
                 d.triggerAndDismiss(item)
             }
@@ -157,7 +156,6 @@ Loader {
         if (item && item.styleData.type === MenuItemType.Menu
                  && !item.__menuItem.__popupVisible) {
             item.__showSubMenu(true)
-            item.__menuItem.__currentIndex = 0
             event.accepted = true
          } else {
              event.accepted = false
@@ -242,6 +240,7 @@ Loader {
                         if (__menuItem.__usingDefaultStyle)
                             __menuItem.style = __menu.style
                         __menuItem.__popup(Qt.rect(menuFrameLoader.width - (d.style.submenuOverlap + d.style.padding.right), -d.style.padding.top, 0, 0), -1)
+                        __menuItem.selectNextHoverableItem()
                     }
                 } else {
                     menuFrameLoader.openMenuTimerStartedIndex = __menuItemIndex
