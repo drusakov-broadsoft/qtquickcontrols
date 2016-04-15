@@ -344,7 +344,13 @@ MenuBarPrivate {
             y: d.style ? d.style.padding.top : 0
             width: parent.width - (d.style ? d.style.padding.left + d.style.padding.right : 0)
             LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
-            onWidthChanged: menuBarLoader.populateExtensionMenu()
+            onWidthChanged: populateExtensionMenuTimer.restart()
+
+            Timer {
+                id: populateExtensionMenuTimer
+                interval: 500
+                onTriggered: menuBarLoader.populateExtensionMenu()
+            }
 
             property double extButtonWidth: 0
             property int lastItemIndex: -1
