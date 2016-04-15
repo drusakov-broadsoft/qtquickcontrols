@@ -95,6 +95,8 @@ Loader {
 
     focus: true
 
+    property int openMenuTimerStartedIndex: -1
+
     function selectNextHoverableItem() {
         if (__menu.__currentIndex < 0)
             __menu.__currentIndex = -1
@@ -102,6 +104,14 @@ Loader {
         for (var i = __menu.__currentIndex + 1;
              i < __menu.items.length && !d.canBeHovered(i); i++)
             ;
+    }
+
+    function stopOpenMenuTimer() {
+        var item = content.menuItemAt(openMenuTimerStartedIndex)
+        if (item) {
+            item.__closeSubMenu()
+        }
+        content.stopOpenMenuTimer()
     }
 
     Keys.onPressed: {
@@ -234,6 +244,7 @@ Loader {
                         __menuItem.__popup(Qt.rect(menuFrameLoader.width - (d.style.submenuOverlap + d.style.padding.right), -d.style.padding.top, 0, 0), -1)
                     }
                 } else {
+                    menuFrameLoader.openMenuTimerStartedIndex = __menuItemIndex
                     openMenuTimer.start()
                 }
             }
@@ -241,13 +252,16 @@ Loader {
             Timer {
                 id: openMenuTimer
                 interval: d.style.submenuPopupDelay
-                onTriggered: menuItemLoader.__showSubMenu(true)
+                onTriggered: {
+                    menuFrameLoader.openMenuTimerStartedIndex = -1
+                    menuItemLoader.__showSubMenu(true)
+                }
             }
 
             function __closeSubMenu() {
-                if (openMenuTimer.running)
+                if (openMenuTimer.running) {
                     openMenuTimer.stop()
-                else if (__menuItem.__popupVisible)
+                } else if (__menuItem.__popupVisible)
                     closeMenuTimer.start()
             }
 

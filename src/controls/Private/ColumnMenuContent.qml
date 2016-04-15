@@ -82,6 +82,15 @@ Item {
     property var oldMousePos: undefined
     property var openedSubmenu: null
 
+    function stopOpenMenuTimer() {
+        if (sloppyTimer.running) {
+            sloppyTimer.stop()
+        }
+        if (Boolean(openedSubmenu)) {
+            openedSubmenu.stopOpenMenuTimer()
+        }
+    }
+
     function updateCurrentItem(mouse) {
         var pos = mapToItem(list.contentItem, mouse.x, mouse.y)
         var dx = 0
@@ -151,8 +160,9 @@ Item {
         onCurrentIndexChanged: if (currentIndex !== -1) stop()
 
         onTriggered: {
-            if (openedSubmenu && openedSubmenu.__currentIndex === -1)
+            if (openedSubmenu && openedSubmenu.__currentIndex === -1) {
                 updateCurrentItem(oldMousePos)
+            }
         }
     }
 

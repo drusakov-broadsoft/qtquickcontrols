@@ -441,11 +441,16 @@ MenuBarPrivate {
                         }
                     }
 
+                    function stopOpenMenuTimer() {
+                        __menuItem.stopOpenMenuTimer()
+                    }
+
                     Connections {
                         target: __menuItem
                         onPopupVisibleChanged: {
                             if (!__menuItem.__popupVisible && d.openedMenuIndex === index) {
                                 dismissMenuAndDestroyMenuPopupsTimer.start()
+                                stopOpenMenuTimer()
                                 d.openedMenuIndex = -1
                             }
                         }
@@ -547,11 +552,19 @@ MenuBarPrivate {
                 }
             }
 
+            function stopOpenMenuTimer() {
+                __menuItem.stopOpenMenuTimer()
+            }
+
             Connections {
                 target: extensionButton.__menuItem
                 onPopupVisibleChanged: {
-                    if (!extensionButton.__menuItem.__popupVisible && d.openedMenuIndex === extensionButton.__menuItemIndex)
-                        d.openedMenuIndex = -1
+                    if (!extensionButton.__menuItem.__popupVisible) {
+                        extensionButton.stopOpenMenuTimer()
+                        if (d.openedMenuIndex === extensionButton.__menuItemIndex) {
+                            d.openedMenuIndex = -1
+                        }
+                    }
                 }
             }
 
