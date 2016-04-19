@@ -339,7 +339,9 @@ MenuBarPrivate {
         Keys.forwardTo: d.openedMenuIndex !== -1
                         ? d.openedMenuIndex < root.menus.length
                           ? [root.menus[d.openedMenuIndex].__contentItem]
-                          : [extensionButton.__menuItem.__contentItem]
+                          : d.openedMenuIndex === extensionButton.__menuItemIndex
+                            ? [extensionButton.__menuItem.__contentItem]
+                            : []
                         : []
 
         Row {
