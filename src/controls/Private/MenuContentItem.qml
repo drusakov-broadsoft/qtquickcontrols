@@ -126,7 +126,8 @@ Loader {
             }
             event.accepted = true
         } else {
-            event.accepted = false
+            // Do not propagate to parent menu if it was a key that could have been a mnemonic
+            event.accepted = event.key >= Qt.Key_A && event.key <= Qt.Key_Z || event.key >= Qt.Key_0 && event.key <= Qt.Key_9;
         }
     }
 
