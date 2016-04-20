@@ -616,6 +616,9 @@ MenuBarPrivate {
                 if (!hoveredItem || !hoveredItem.contains(Qt.point(pos.x - currentItem.x, pos.y - currentItem.y))) {
                     hoveredItem = row.childAt(pos.x, pos.y)
                     if (!hoveredItem) {
+                        if (!extensionButton.visible) {
+                            return false;
+                        }
                         pos = mapToItem(extensionButton, mouse.x, mouse.y)
                         hoveredItem = extensionButton.contains(Qt.point(pos.x, pos.y)) ? extensionButton : null
                         if (!hoveredItem)
