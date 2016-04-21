@@ -420,8 +420,11 @@ MenuBarPrivate {
                                 return;
                             if (d.openedMenuIndex === index) {
                                 timerToOpenMenu.item = __menuItem
+                                timerToOpenMenu.index = index
                                 timerToOpenMenu.restart()
                             } else if (__menuItem.__popupVisible) {
+                                if (timerToOpenMenu.running)
+                                    timerToOpenMenu.stop()
                                 __menuItem.__dismissMenu()
                                 __menuItem.__destroyAllMenuPopups()
                             }
@@ -431,16 +434,20 @@ MenuBarPrivate {
                     Timer {
                         id: timerToOpenMenu
                         property var item: null
+                        property int index: -1
                         interval: 10
                         running: false
                         repeat: false
                         onTriggered: {
-                            if (item.__usingDefaultStyle)
-                                item.style = d.style.menuStyle
-                            item.__popup(Qt.rect(row.LayoutMirroring.enabled ? menuItemLoader.width : 0,
-                                               menuBarLoader.height - d.heightPadding, 0, 0), 0)
-                            if (d.preselectMenuItem)
-                                item.selectNextHoverableItem()
+                            if (d.openedMenuIndex == index) { // Check that the selected menu did not change while the timer was running
+                                if (item.__usingDefaultStyle)
+                                    item.style = d.style.menuStyle
+                                item.__popup(Qt.rect(row.LayoutMirroring.enabled ? menuItemLoader.width : 0,
+                                                   menuBarLoader.height - d.heightPadding, 0, 0), 0)
+                                if (d.preselectMenuItem)
+                                    item.selectNextHoverableItem()
+                                index = -1
+                            }
                         }
                     }
 
