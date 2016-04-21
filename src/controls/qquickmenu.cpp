@@ -462,6 +462,7 @@ void QQuickMenu::__popup(const QRectF &targetRect, int atItemIndex, MenuType men
     } else {
         m_popupWindow = new QQuickMenuPopupWindow(this);
         m_popupWindow->setHandleMouseMovedInRelease(m_handleMouseMovedInRelease);
+        m_popupWindow->setFirstTimeHover(true);
         if (visualItem())
             m_popupWindow->setParentItem(visualItem());
         else
