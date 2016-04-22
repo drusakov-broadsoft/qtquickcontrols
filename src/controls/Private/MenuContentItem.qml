@@ -69,7 +69,7 @@ Loader {
         readonly property Component menuItemPanel: style ? style.menuItemPanel : null
 
         function canBeHovered(index) {
-            var item = content.menuItemAt(index)
+            var item = content.getMenuItemAt(index)
             if (item && item.visible && item.styleData.type !== MenuItemType.Separator && item.styleData.enabled) {
                 __menu.__currentIndex = index
                 return true
