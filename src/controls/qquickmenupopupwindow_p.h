@@ -80,7 +80,7 @@ private:
     QQuickMenu1 *m_menu;
 
 private:
-    QQuickMenuBar *menuBar() const;
+    QQuickMenuBar1 *menuBar() const;
 };
 
 QT_END_NAMESPACE
