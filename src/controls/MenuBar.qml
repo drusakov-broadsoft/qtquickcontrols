@@ -583,6 +583,8 @@ MenuBarPrivate {
                         if (d.openedMenuIndex === extensionButton.__menuItemIndex) {
                             d.openedMenuIndex = -1
                         }
+                        extensionButton.__menuItem.__dismissMenu()
+                        extensionButton.__menuItem.__destroyAllMenuPopups()
                     }
                 }
             }
