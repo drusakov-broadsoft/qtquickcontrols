@@ -56,6 +56,10 @@ Item {
         return list.currentItem
     }
 
+    function getMenuItemAt(index) {
+        return list.contentItem.children[index]
+    }
+
     width: Math.max(list.contentWidth, minWidth)
     height: Math.min(list.contentHeight, fittedMaxHeight)
 
@@ -81,6 +85,15 @@ Item {
     readonly property real downScrollerHeight: downScroller.visible ? downScroller.height : 0
     property var oldMousePos: undefined
     property var openedSubmenu: null
+
+    function stopOpenMenuTimer() {
+        if (sloppyTimer.running) {
+            sloppyTimer.stop()
+        }
+        if (Boolean(openedSubmenu)) {
+            openedSubmenu.stopOpenMenuTimer()
+        }
+    }
 
     function updateCurrentItem(mouse) {
         var pos = mapToItem(list.contentItem, mouse.x, mouse.y)
@@ -151,8 +164,9 @@ Item {
         onCurrentIndexChanged: if (currentIndex !== -1) stop()
 
         onTriggered: {
-            if (openedSubmenu && openedSubmenu.__currentIndex === -1)
+            if (openedSubmenu && openedSubmenu.__currentIndex === -1) {
                 updateCurrentItem(oldMousePos)
+            }
         }
     }
 
