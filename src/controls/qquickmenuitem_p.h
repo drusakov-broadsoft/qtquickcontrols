@@ -80,6 +80,7 @@ class QQuickMenuBase: public QObject
 
 Q_SIGNALS:
     void visibleChanged();
+    void parentChanged();
 
 public:
     QQuickMenuBase(QObject *parent, int type);
