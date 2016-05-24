@@ -88,7 +88,7 @@ Loader {
                 __menu.__dismissMenu()
                 if (item.styleData.type !== MenuItemType.Menu)
                     item.__menuItem.trigger()
-                __menu.__destroyAllMenuPopups()
+                __menu.destroyAllMenuPopups()
             }
         }
     }
@@ -301,7 +301,7 @@ Loader {
                 onTriggered: {
                     unsetAltPressed()
                     __menu.__dismissMenu()
-                    __menu.__destroyAllMenuPopups()
+                    __menu.destroyAllMenuPopups()
                 }
             }
 
