@@ -157,7 +157,10 @@ MenuPrivate {
     /*! \internal */
     property bool __usingDefaultStyle: false
     /*! \internal */
-    property var __parentContentItem: __parentMenu ? __parentMenu.__contentItem : null
+    property var __parentContentItem: contentLoader.item ? contentLoader.item.__menu.__parentMenu 
+                                                             ? contentLoader.item.__menu.__parentMenu.__contentItem 
+                                                             : null
+                                                         : null
     /*! \internal */
     property int __currentIndex: -1
     /*! \internal */
