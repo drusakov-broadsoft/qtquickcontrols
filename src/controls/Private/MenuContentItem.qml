@@ -85,6 +85,7 @@ Loader {
 
         function triggerAndDismiss(item) {
             if (item && item.styleData.type !== MenuItemType.Separator) {
+                unsetAltPressed()
                 __menu.__dismissMenu()
                 if (item.styleData.type !== MenuItemType.Menu)
                     item.__menuItem.trigger()
