@@ -271,6 +271,8 @@ QQuickMenu1::QQuickMenu1(QObject *parent)
       m_identifier(0),
       m_handleMouseMovedInRelease(true)
 {
+    static int menuTypeId = qRegisterMetaType<MenuType>("MenuType");
+
     static int identifier = 1;
     m_identifier = identifier++;
     connect(this, SIGNAL(__textChanged()), this, SIGNAL(titleChanged()));
@@ -434,6 +436,15 @@ void QQuickMenu1::popup()
 }
 
 void QQuickMenu1::__popup(const QRectF &targetRect, int atItemIndex, MenuType menuType)
+{
+#ifdef Q_OS_MAC
+    QMetaObject::invokeMethod(this, "doPopup", Qt::QueuedConnection, Q_ARG(QRectF,targetRect), Q_ARG(int,atItemIndex), Q_ARG(MenuType,menuType));
+#else
+    doPopup(targetRect, atItemIndex, menuType);
+#endif
+}
+
+void QQuickMenu1::doPopup(const QRectF &targetRect, int atItemIndex, MenuType menuType)
 {
     if (popupVisible()) {
         hideMenu();
