@@ -217,7 +217,7 @@ MenuBarPrivate {
 
         Keys.onPressed: {
             var action = null
-            if (event.key === Qt.Key_Alt && !( event.modifiers & Qt.ControlModifier )) {
+            if (event.key === Qt.Key_Alt && !( event.modifiers & Qt.ControlModifier ) && !( event.modifiers & Qt.ShiftModifier ) ) {
                 if (!d.altPressed) {
                     d.menuIndex = 0
                     d.altPressed = true
