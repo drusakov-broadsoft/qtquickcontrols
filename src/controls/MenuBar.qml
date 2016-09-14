@@ -215,9 +215,18 @@ MenuBarPrivate {
 
         focus: true
 
+        Keys.onReleased: {
+           if( d.openedMenuIndex === -1 )
+           {
+              var containsModifiers = (event.modifiers & Qt.ShiftModifier) || (event.modifiers & Qt.AltModifier) || (event.modifiers & Qt.ControlModifier)
+              if ( (event.key === Qt.Key_Alt || event.key === Qt.Key_Shift || event.key === Qt.Key_Control) && Boolean(containsModifiers) )
+                 d.dismissActiveFocus(event, true)
+           }
+        }
+
         Keys.onPressed: {
             var action = null
-            if (event.key === Qt.Key_Alt && !( event.modifiers & Qt.ControlModifier ) && !( event.modifiers & Qt.ShiftModifier ) ) {
+            if (event.key === Qt.Key_Alt && !( event.modifiers & Qt.ControlModifier )) {
                 if (!d.altPressed) {
                     d.menuIndex = 0
                     d.altPressed = true
