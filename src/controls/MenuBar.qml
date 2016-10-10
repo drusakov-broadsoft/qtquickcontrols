@@ -142,6 +142,7 @@ MenuBarPrivate {
             property bool preselectMenuItem: false
             property real heightPadding: style ? style.padding.top + style.padding.bottom : 0
 
+            property bool noControlModifier: false
             property bool altPressed: false
             property var mnemonicsMap: ({})
             property var extensionMnemonicsMap: ({})
@@ -218,15 +219,18 @@ MenuBarPrivate {
         Keys.onReleased: {
            if( d.openedMenuIndex === -1 )
            {
-              var containsModifiers = (event.modifiers & Qt.ShiftModifier) || (event.modifiers & Qt.AltModifier) || (event.modifiers & Qt.ControlModifier)
-              if ( (event.key === Qt.Key_Alt || event.key === Qt.Key_Shift || event.key === Qt.Key_Control) && Boolean(containsModifiers) )
+              var containsNeededModifiers = ( (event.modifiers & Qt.ShiftModifier) || (event.modifiers & Qt.AltModifier) ) && d.noControlModifier
+              if ( (event.key === Qt.Key_Alt || event.key === Qt.Key_Shift || event.key === Qt.Key_Control) && Boolean(containsNeededModifiers) )
                  d.dismissActiveFocus(event, true)
            }
+
+           d.noControlModifier = !( event.modifiers & Qt.ControlModifier )
         }
 
         Keys.onPressed: {
             var action = null
-            if (event.key === Qt.Key_Alt && !( event.modifiers & Qt.ControlModifier )) {
+            d.noControlModifier = !( event.modifiers & Qt.ControlModifier )
+            if (event.key === Qt.Key_Alt && d.noControlModifier) {
                 if (!d.altPressed) {
                     d.menuIndex = 0
                     d.altPressed = true
