@@ -64,6 +64,11 @@ Style {
         contentHeight: textHeight(plainText)
         width: implicitWidth
 
+        onSelectedChanged: {
+           if( selected && !sunken )
+              forceActiveFocus()
+        }
+
         enabled: styleData.enabled
         sunken: styleData.open
         selected: (parent && styleData.selected) || sunken
