@@ -85,8 +85,6 @@ Style {
     property Component menuItemPanel: StyleItem {
         elementType: __menuItemType
 
-        Accessible.role: Accessible.MenuItem
-
         text: styleData.text
 
         enabled: styleData.enabled

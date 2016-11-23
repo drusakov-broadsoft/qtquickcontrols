@@ -56,8 +56,6 @@ Style {
     property Component itemDelegate: StyleItem {
         elementType: "menubaritem"
 
-        Accessible.role: Accessible.MenuItem
-
         text: styleData.text
         property string plainText: StyleHelpers.removeMnemonics(text)
         contentWidth: textWidth(plainText)
