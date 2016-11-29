@@ -87,6 +87,9 @@ Style {
 
         text: styleData.text
 
+        Accessible.role: Accessible.MenuItem
+        Accessible.name: StyleHelpers.removeMnemonics(text)
+
         enabled: styleData.enabled
         selected: styleData.selected
         on: styleData.checkable && styleData.checked

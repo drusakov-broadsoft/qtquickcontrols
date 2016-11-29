@@ -58,6 +58,10 @@ Style {
 
         text: styleData.text
         property string plainText: StyleHelpers.removeMnemonics(text)
+
+        Accessible.role: Accessible.MenuItem
+        Accessible.name: plainText
+
         contentWidth: textWidth(plainText)
         contentHeight: textHeight(plainText)
         width: implicitWidth
