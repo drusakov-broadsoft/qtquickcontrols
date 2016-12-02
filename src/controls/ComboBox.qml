@@ -631,8 +631,7 @@ Control {
                         modelData :
                           ((popup.modelIsArray ? modelData[popup.textRole] : model[popup.textRole]) || '')
                 onTriggered: {
-                    if (index !== currentIndex)
-                        activated(index)
+                    activated(index)
                     comboBox.editText = text
                 }
                 checkable: true
