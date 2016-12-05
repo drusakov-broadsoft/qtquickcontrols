@@ -57,6 +57,7 @@ Item {
     activeFocusOnTab: false
 
     Accessible.role: Accessible.ScrollBar
+    Accessible.ignored: Qt.platform.os === "osx" ? true : false
     implicitWidth: panelLoader.implicitWidth
     implicitHeight: panelLoader.implicitHeight
 
