@@ -152,6 +152,8 @@ Control {
     activeFocusOnTab: true
     Accessible.role: Accessible.CheckBox
     Accessible.name: "switch"
+	Accessible.checkable: true
+	Accessible.checked: checked
 
     /*!
         The style that should be applied to the switch. Custom style
