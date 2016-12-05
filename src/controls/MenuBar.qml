@@ -142,7 +142,6 @@ MenuBarPrivate {
             property bool preselectMenuItem: false
             property real heightPadding: style ? style.padding.top + style.padding.bottom : 0
 
-            property bool noControlModifier: false
             property bool altPressed: false
             property var mnemonicsMap: ({})
             property var extensionMnemonicsMap: ({})
@@ -213,37 +212,50 @@ MenuBarPrivate {
             }
         }
         property alias __altPressed: d.altPressed // Needed for the menu contents
+        signal menuBarFocusLost(var reason)
+
+        onMenuBarFocusLost:{
+            if(reason != Qt.MouseFocusReason)
+                d.dismissActiveFocus(null, true)
+        }
 
         focus: true
 
-        Keys.onReleased: {
-           if( d.openedMenuIndex === -1 )
-           {
-              var containsNeededModifiers = ( (event.modifiers & Qt.ShiftModifier) || (event.modifiers & Qt.AltModifier) ) && d.noControlModifier
-              if ( (event.key === Qt.Key_Alt || event.key === Qt.Key_Shift || event.key === Qt.Key_Control) && Boolean(containsNeededModifiers) )
-                 d.dismissActiveFocus(event, true)
-           }
-
-           d.noControlModifier = !( event.modifiers & Qt.ControlModifier )
-        }
-
         Keys.onPressed: {
-            var action = null
-            d.noControlModifier = !( event.modifiers & Qt.ControlModifier )
-            if (event.key === Qt.Key_Alt && d.noControlModifier) {
-                if (!d.altPressed) {
-                    d.menuIndex = 0
+            var containsModifiers = (event.modifiers & Qt.ShiftModifier) || (event.modifiers & Qt.ControlModifier)
+            if(event.key === Qt.Key_Alt && !Boolean(containsModifiers) )
+            {
+                if(!d.altPressed)
                     d.altPressed = true
-                    forceActiveFocus(Qt.MenuBarFocusReason)
-                } else
+                else
                     d.dismissActiveFocus(event, true)
-            } else if (d.altPressed && (action = d.mnemonicsMap[event.text.toUpperCase()])) {
+            }
+        }
+        Keys.onReleased: {
+            var containsModifiers = (event.modifiers & Qt.ShiftModifier) || (event.modifiers & Qt.ControlModifier)
+            var action = null
+            if(event.key === Qt.Key_Alt && !Boolean(containsModifiers)) {
+                if( d.altPressed && d.menuIndex === -1 && d.openedMenuIndex === -1 )
+                {
+                    d.menuIndex = 0
+                    forceActiveFocus(Qt.MenuBarFocusReason)
+                }
+            }
+            else if (d.altPressed && (action = d.mnemonicsMap[event.text.toUpperCase()])) {
                 d.preselectMenuItem = true
                 action.trigger()
                 event.accepted = true
                 if (action == extensionButton.__menuItem.__action) {
                     if((action = d.extensionMnemonicsMap[event.text.toUpperCase()]))
                         d.delayedTriggerTimer.action = action
+                }
+            }
+
+            if( d.openedMenuIndex === -1 )
+            {
+                if ( (event.key === Qt.Key_Alt || event.key === Qt.Key_Shift || event.key === Qt.Key_Control) && Boolean(containsModifiers) )
+                {
+                    d.dismissActiveFocus(event, true)
                 }
             }
         }
