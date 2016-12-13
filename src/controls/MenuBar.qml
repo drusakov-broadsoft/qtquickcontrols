@@ -542,7 +542,7 @@ MenuBarPrivate {
             anchors.right: parent.right
 
             Accessible.role: Accessible.MenuItem
-            Accessible.name: StyleHelpers.removeMnemonics(opts.text)
+            Accessible.name: qsTr("More")
             Accessible.onPressAction: d.openedMenuAtIndex(opts.index)
 
             property var styleData: QtObject {
