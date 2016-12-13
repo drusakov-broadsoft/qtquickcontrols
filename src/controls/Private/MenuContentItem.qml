@@ -193,9 +193,19 @@ Loader {
         Loader {
             id: menuItemLoader
 
+            function getAccessibleString()
+            {
+                var title = opts.text
+                var ampersandPos = title.indexOf("&")
+                var mnemonic = "";
+                if (ampersandPos !== -1)
+                    mnemonic = title[ampersandPos + 1].toLowerCase()
+                return "%1 %2 %3 %4".arg(StyleHelpers.removeMnemonics(opts.text)).arg((opts.type === MenuItemType.Menu ? qsTr("subMenu") : "")).arg(opts.shortcut).arg(mnemonic)
+            }
+
             Accessible.role: opts.type === MenuItemType.Item || opts.type === MenuItemType.Menu ?
                                  Accessible.MenuItem : Accessible.NoRole
-            Accessible.name: StyleHelpers.removeMnemonics(opts.text)
+            Accessible.name: menuItemLoader.getAccessibleString()
             Accessible.checkable: opts.checkable
             Accessible.checked: opts.checked
             Accessible.onPressAction: {

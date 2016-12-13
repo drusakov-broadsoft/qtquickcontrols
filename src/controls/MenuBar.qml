@@ -399,14 +399,26 @@ MenuBarPrivate {
                 Loader {
                     id: menuItemLoader
 
+                    function getAccessibleString()
+                    {
+                        var title = opts.text
+                        var ampersandPos = title.indexOf("&")
+                        var mnemonic = "";
+                        if (ampersandPos !== -1)
+                           mnemonic = title[ampersandPos + 1].toLowerCase()
+                        return "%1 %2 %3 %4".arg(StyleHelpers.removeMnemonics(opts.text)).arg((opts.type === MenuItemType.Menu ? qsTr("subMenu") : "")).arg(opts.shortcut).arg(mnemonic)
+                    }
+
                     Accessible.role: Accessible.MenuItem
-                    Accessible.name: StyleHelpers.removeMnemonics(opts.text)
+                    Accessible.name: menuItemLoader.getAccessibleString()
                     Accessible.onPressAction: d.openMenuAtIndex(opts.index)
 
                     property var styleData: QtObject {
                         id: opts
                         readonly property int index: __menuItemIndex
                         readonly property string text: !!__menuItem && __menuItem.title
+                        readonly property string shortcut: !!__menuItem && __menuItem["shortcut"]
+                        readonly property int type: !!__menuItem && __menuItem.type
                         readonly property bool enabled: !!__menuItem && __menuItem.enabled
                         readonly property bool selected: menuMouseArea.hoveredItem === menuItemLoader || d.altPressed && d.menuIndex === index
                         readonly property bool open: !!__menuItem && __menuItem.__popupVisible || d.openedMenuIndex === index
@@ -542,7 +554,7 @@ MenuBarPrivate {
             anchors.right: parent.right
 
             Accessible.role: Accessible.MenuItem
-            Accessible.name: qsTr("More")
+            Accessible.name: qsTr("More submenu")
             Accessible.onPressAction: d.openedMenuAtIndex(opts.index)
 
             property var styleData: QtObject {
