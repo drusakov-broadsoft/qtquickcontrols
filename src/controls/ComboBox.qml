@@ -724,17 +724,6 @@ Control {
             event.accepted = false
     }
 
-    Keys.onUpPressed: {
-        if( event.modifiers & Qt.AltModifier )
-            popup.toggleShow()
-        else
-            __selectPrevItem()
-    }
-
-    Keys.onDownPressed: {
-        if( event.modifiers & Qt.AltModifier )
-            popup.toggleShow()
-        else
-            __selectNextItem()
-	}
+    Keys.onUpPressed: __selectPrevItem()
+    Keys.onDownPressed: __selectNextItem()
 }
