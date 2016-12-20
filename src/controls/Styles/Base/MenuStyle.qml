@@ -181,6 +181,11 @@ Style {
                 GradientStop { color: __selectedBackgroundColor; position: 1.4 }
             }
 
+        onVisibleChanged: {
+            if(visible)
+                forceActiveFocus()
+        }
+
             border.width: 1
             border.color: Qt.darker(__selectedBackgroundColor, 1)
             antialiasing: true
