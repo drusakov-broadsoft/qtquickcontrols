@@ -57,7 +57,6 @@ Item {
     }
 
     width: Math.max(list.contentWidth, minWidth)
-    height: Math.min(list.contentHeight, fittedMaxHeight)
 
     readonly property int currentIndex: __menu.__currentIndex
     property Item currentItem: null
@@ -71,6 +70,14 @@ Item {
                 itemHeight = children[i].height
                 break
             }
+        }
+    }
+
+    Connections {
+        target: list
+        ignoreUnknownSignals: true
+        onContentHeightChanged: {
+            content.height = Math.min(list.contentHeight, fittedMaxHeight)
         }
     }
 
