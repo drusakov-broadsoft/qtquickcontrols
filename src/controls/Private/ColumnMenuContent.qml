@@ -56,10 +56,6 @@ Item {
         return list.currentItem
     }
 
-    function getMenuItemAt(index) {
-        return list.contentItem.children[index]
-    }
-
     width: Math.max(list.contentWidth, minWidth)
     height: Math.min(list.contentHeight, fittedMaxHeight)
 
