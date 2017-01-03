@@ -614,11 +614,7 @@ Control {
 
     activeFocusOnTab: true
 
-    Accessible.name: text
-    //https://jira.broadsoft.com/browse/BTUC-13672
-    //When set as EditableText, the description
-    //also seem to hold the value of text
-    Accessible.role: Accessible.StaticText
+    Accessible.role: Accessible.EditableText
     Accessible.description: placeholderText
 
     Text {
