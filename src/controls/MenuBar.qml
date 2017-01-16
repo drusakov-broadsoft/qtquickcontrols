@@ -221,14 +221,21 @@ MenuBarPrivate {
 
         focus: true
 
+	property bool otherKeyPressed: false
+
         Keys.onPressed: {
             var containsModifiers = (event.modifiers & Qt.ShiftModifier) || (event.modifiers & Qt.ControlModifier)
             if(event.key === Qt.Key_Alt && !Boolean(containsModifiers) )
             {
-                if(!d.altPressed)
-                    d.altPressed = true
-                else
+                if(!d.altPressed) {
+		  d.menuIndex = -1
+		  d.openedMenuIndex = -1
+                  d.altPressed = true
+		  otherKeyPressed = false
+		}
+                else {
                     d.dismissActiveFocus(event, true)
+		}
             }
         }
         Keys.onReleased: {
@@ -237,11 +244,17 @@ MenuBarPrivate {
             if(event.key === Qt.Key_Alt && !Boolean(containsModifiers)) {
                 if( d.altPressed && d.menuIndex === -1 && d.openedMenuIndex === -1 )
                 {
-                    d.menuIndex = 0
-                    forceActiveFocus(Qt.MenuBarFocusReason)
+		    if (!otherKeyPressed) {
+	                    d.menuIndex = 0
+                            forceActiveFocus(Qt.MenuBarFocusReason)
+			}
+		    else {
+			d.altPressed = false
+		    }
                 }
             }
             else if (d.altPressed && (action = d.mnemonicsMap[event.text.toUpperCase()])) {
+		otherKeyPressed = false
                 d.preselectMenuItem = true
                 action.trigger()
                 event.accepted = true
@@ -249,7 +262,9 @@ MenuBarPrivate {
                     if((action = d.extensionMnemonicsMap[event.text.toUpperCase()]))
                         d.delayedTriggerTimer.action = action
                 }
-            }
+            } else {
+		otherKeyPressed = true
+	    }
 
             if( d.openedMenuIndex === -1 )
             {
@@ -259,7 +274,6 @@ MenuBarPrivate {
                 }
             }
         }
-
         Keys.onEscapePressed: d.dismissActiveFocus(event, d.openedMenuIndex === -1)
 
         Keys.onUpPressed: d.maybeOpenFirstMenu(event)
