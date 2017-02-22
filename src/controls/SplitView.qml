@@ -524,7 +524,7 @@ Item {
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent
-                property real defaultMargin: Private.Settings.hasTouchScreen ? Screen.pixelDensity * 3.5 : 2
+                property real defaultMargin: 2
                 anchors.leftMargin: (parent.width <= 1) ? -defaultMargin : 0
                 anchors.rightMargin: (parent.width <= 1) ? -defaultMargin : 0
                 anchors.topMargin: (parent.height <= 1) ? -defaultMargin : 0
