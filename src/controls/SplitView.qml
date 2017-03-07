@@ -544,7 +544,7 @@ Item {
                 if (d.updateLayoutGuard)
                     return
 
-                var leftHandle, leftItem, rightItem, rightHandle
+                var leftHandle, leftItem, rightItem, rightHandle, newHandlePos
                 var leftEdge, rightEdge, newWidth, leftStopX, rightStopX
                 var i
 
@@ -560,16 +560,21 @@ Item {
                         }
                     }
 
+                    rightItem = __items[__handleIndex+1]
                     // Ensure: leftStopX >= itemHandle[d.offset] >= rightStopX
-                    var min = d.accumulatedSize(__handleIndex+1, __items.length, true)
+                    var min = Math.max(d.accumulatedSize(__handleIndex+1, __items.length, true), rightItem.Layout[d.minimum] + itemHandle[d.size])
                     rightStopX = root[d.size] - min - itemHandle[d.size]
                     leftStopX = Math.max(leftEdge, itemHandle[d.offset])
-                    itemHandle[d.offset] = Math.min(rightStopX, Math.max(leftStopX, itemHandle[d.offset]))
+                    newHandlePos = Math.min(rightStopX, Math.max(leftStopX, itemHandle[d.offset]))
 
-                    newWidth = itemHandle[d.offset] - leftEdge
                     leftItem = __items[__handleIndex]
+
+                    newHandlePos = d.clampedMinMax(newHandlePos, leftItem.Layout[d.minimum], leftItem.Layout[d.maximum])
+                    itemHandle[d.offset] = newHandlePos
+
+                    newWidth = newHandlePos - leftEdge
                     // The next line will trigger 'updateLayout':
-                    leftItem[d.size] = newWidth
+                    leftItem[d.size] = newWidth //d.clampedMinMax(newWidth, leftItem.Layout[d.minimum], leftItem.Layout[d.maximum])
                 } else {
                     // Resize item to the right.
                     // Ensure that the handle is not crossing other handles. So
@@ -583,14 +588,19 @@ Item {
                         }
                     }
 
+                    leftItem = __items[__handleIndex]
                     // Ensure: leftStopX <= itemHandle[d.offset] <= rightStopX
-                    min = d.accumulatedSize(0, __handleIndex+1, true)
+                    min = Math.max(d.accumulatedSize(0, __handleIndex+1, true), leftItem.Layout[d.minimum] + itemHandle[d.size])
                     leftStopX = min - itemHandle[d.size]
                     rightStopX = Math.min((rightEdge - itemHandle[d.size]), itemHandle[d.offset])
-                    itemHandle[d.offset] = Math.max(leftStopX, Math.min(itemHandle[d.offset], rightStopX))
+                    newHandlePos = Math.max(leftStopX, Math.min(itemHandle[d.offset], rightStopX))
 
-                    newWidth = rightEdge - (itemHandle[d.offset] + itemHandle[d.size])
                     rightItem = __items[__handleIndex+1]
+
+                    newHandlePos = d.clampedMinMax(newHandlePos, rightEdge - (rightItem.Layout[d.maximum] + itemHandle[d.size]), rightEdge - (rightItem.Layout[d.minimum] + itemHandle[d.size]))
+                    itemHandle[d.offset] = newHandlePos
+
+                    newWidth = rightEdge - (newHandlePos + itemHandle[d.size])
                     // The next line will trigger 'updateLayout':
                     rightItem[d.size] = newWidth
                 }
