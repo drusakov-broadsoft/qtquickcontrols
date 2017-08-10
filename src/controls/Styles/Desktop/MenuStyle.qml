@@ -91,11 +91,6 @@ Style {
         selected: styleData.selected
         on: styleData.checkable && styleData.checked
 
-        onSelectedChanged: {
-           if( selected && enabled )
-              forceActiveFocus()
-        }
-
         hints: { "showUnderlined": styleData.underlineMnemonic }
 
         properties: {
