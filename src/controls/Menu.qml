@@ -136,6 +136,7 @@ MenuPrivate {
 
     */
     property Component style
+    signal menuItemSelected(var item)
 
     function selectNextHoverableItem() {
         __contentItem.item.selectNextHoverableItem()
@@ -181,6 +182,11 @@ MenuPrivate {
             id: menuContent
             MenuContentItem {
                 __menu: root
+                onMenuItemSelected: {
+                   root.menuItemSelected(item)
+                   if( Boolean(__menu.__parentMenu) )
+                      __menu.__parentMenu.menuItemSelected(item)
+                }
             }
         }
 
