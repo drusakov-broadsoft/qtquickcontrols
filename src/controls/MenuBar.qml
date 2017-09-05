@@ -89,6 +89,8 @@ MenuBarPrivate {
     /*! \internal */
     property QtObject __style: styleLoader.item
 
+    signal menuItemSelected(var item)
+
     __isNative: !__style.hasOwnProperty("__isNative") || __style.__isNative
 
     /*! \internal */
@@ -411,8 +413,15 @@ MenuBarPrivate {
             Repeater {
                 id: itemsRepeater
                 model: root.menus
+
                 Loader {
                     id: menuItemLoader
+
+                    property alias selected: opts.selected
+                    onSelectedChanged: {
+                       if(selected && menuItemLoader)
+                          root.menuItemSelected( menuItemLoader )
+                    }
 
                     function getAccessibleString()
                     {
@@ -525,6 +534,9 @@ MenuBarPrivate {
 
                     Connections {
                         target: __menuItem
+                        onMenuItemSelected: {
+                           root.menuItemSelected(item)
+                        }
                         onPopupVisibleChanged: {
                             if (!__menuItem.__popupVisible && d.openedMenuIndex === index) {
                                 dismissMenuAndDestroyMenuPopupsTimer.start()
@@ -572,6 +584,12 @@ MenuBarPrivate {
             Accessible.name: qsTr("More submenu")
             Accessible.onPressAction: d.openedMenuAtIndex(opts.index)
 
+            property alias selected: opts.selected
+            onSelectedChanged: {
+               if(selected && extensionButton)
+                  root.menuItemSelected( extensionButton )
+            }
+
             property var styleData: QtObject {
                 id: opts
                 readonly property int index: extensionButton.__menuItemIndex
@@ -590,6 +608,7 @@ MenuBarPrivate {
                     Component.onCompleted: __setParent(root)
                 }
             }
+
             readonly property var __menuItem: extensionMenuLoader.item
             readonly property int __menuItemIndex: root.menus.length
             sourceComponent: d.style ? d.style.itemDelegate : null
@@ -636,6 +655,9 @@ MenuBarPrivate {
 
             Connections {
                 target: extensionButton.__menuItem
+                onMenuItemSelected: {
+                   root.menuItemSelected(item)
+                }
                 onPopupVisibleChanged: {
                     if (!extensionButton.__menuItem.__popupVisible) {
                         extensionButton.stopOpenMenuTimer()
