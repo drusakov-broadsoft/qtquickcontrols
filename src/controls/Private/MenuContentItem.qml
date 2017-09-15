@@ -194,7 +194,7 @@ Loader {
         Loader {
             id: menuItemLoader
 
-            property bool selected: opts.selected && opts.underlineMnemonic
+            property alias selected: opts.selected
             onSelectedChanged: {
                if(selected && menuItemLoader)
                   menuFrameLoader.menuItemSelected( menuItemLoader )
