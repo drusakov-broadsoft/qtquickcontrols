@@ -363,6 +363,8 @@ Control {
     */
     signal activated(int index)
 
+    signal editMenuItemSelected(var item)
+
     /*!
         \qmlmethod void ComboBox::selectAll()
         \since QtQuick.Controls 1.1
@@ -401,6 +403,11 @@ Control {
     style: Settings.styleComponent(Settings.style, "ComboBoxStyle.qml", comboBox)
 
     activeFocusOnTab: true
+
+    Connections{
+	    target: input.editMenu.item
+	    onMenuItemSelected: comboBox.editMenuItemSelected(item)
+    }
 
     Accessible.name: editable ? editText : currentText
     Accessible.role: Accessible.ComboBox

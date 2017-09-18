@@ -41,6 +41,7 @@ import QtQuick.Controls.Private 1.0
 Item {
     id: editMenuBase
     anchors.fill: parent
+    signal menuItemSelected(var item)
 
     Component {
         id: undoAction
@@ -146,6 +147,7 @@ Item {
         MenuItem { action: clearAction.createObject(editMenuBase) }
         MenuSeparator {}
         MenuItem { action: selectAllAction.createObject(editMenuBase) }
+        onMenuItemSelected: editMenuBase.menuItemSelected(item)
     }
 
     Connections {

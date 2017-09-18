@@ -184,7 +184,7 @@ MenuPrivate {
                 __menu: root
                 onMenuItemSelected: {
                    root.menuItemSelected(item)
-                   if( Boolean(__menu.__parentMenu) )
+                   if( Boolean(__menu.__parentMenu) && __menu.__parentMenu.type === MenuItemType.Menu )
                       __menu.__parentMenu.menuItemSelected(item)
                 }
             }
