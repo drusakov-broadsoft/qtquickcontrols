@@ -966,10 +966,34 @@ ScrollView {
     }
 
     Keys.onPressed: {
-        if (event.key == Qt.Key_PageUp) {
-            __verticalScrollBar.value -= area.height
-        } else if (event.key == Qt.Key_PageDown)
-            __verticalScrollBar.value += area.height
+        if (event.key === Qt.Key_PageUp || event.key === Qt.Key_PageDown) {
+            var amountToScroll
+            var cursorYCoord = edit.cursorRectangle.y
+
+            if (event.key === Qt.Key_PageUp) {
+                amountToScroll = -Math.min(__verticalScrollBar.value, area.height)
+                if (amountToScroll === 0)
+                    cursorYCoord = flickableItem.originY + __verticalScrollBar.minimumValue + edit.cursorRectangle.height / 2
+                else
+                    cursorYCoord -= area.height
+            } else {
+                amountToScroll = Math.min(__verticalScrollBar.maximumValue - __verticalScrollBar.value, area.height)
+                if (amountToScroll === 0)
+                    cursorYCoord = flickableItem.originY + __verticalScrollBar.maximumValue + area.height - edit.cursorRectangle.height / 2
+                else
+                    cursorYCoord += area.height
+            }
+
+            var newCursorPos = edit.positionAt(edit.cursorRectangle.x, cursorYCoord)
+            var scrollTo = flickableItem.contentY + amountToScroll
+
+            edit.moveHandles(newCursorPos, newCursorPos)
+            flickableItem.contentY = scrollTo
+
+            edit.ensureVisible(cursorRectangle)
+
+            event.accepted = true
+        }
     }
 
 }
